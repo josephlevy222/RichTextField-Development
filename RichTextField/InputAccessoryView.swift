@@ -4,7 +4,6 @@
 //
 //  Created by Steven Zhang on 3/12/22.
 //
-
 import SwiftUI
 
 @available(iOS 13.0, *)
@@ -38,7 +37,6 @@ final class InputAccessoryView: UIInputView {
     weak var delegate: TextEditorWrapper.Coordinator!
     
     // MARK: Input Accessory Buttons
-    
     private lazy var stackViewSeparator: UIView = {
         let separator = UIView()
         separator.widthAnchor.constraint(equalToConstant: 1).isActive = true
@@ -239,7 +237,11 @@ final class InputAccessoryView: UIInputView {
             button.addTarget(self, action: #selector(selectColor(_:)), for: .touchUpInside)
             buttons.append(button)
         }
-        
+        let button = UIButton()
+        button.setImage(UIImage(systemName: "circle", withConfiguration: colorConf), for: .normal)
+        button.tintColor = UIColor.label
+        button.addTarget(self, action: #selector(pickColor(_:)), for: .touchUpInside)
+        buttons.append(button)
         return buttons
     }()
     
@@ -258,7 +260,12 @@ final class InputAccessoryView: UIInputView {
         
         return buttons
     }()
-  
+    
+    private lazy var colorPicker: UIColorPickerViewController = {
+        let picker = UIColorPickerViewController()
+        return picker
+    }()
+    
     private lazy var colorPaletteBar: UIStackView = {
         var viewArray = {
             let label = UILabel()
@@ -314,17 +321,19 @@ final class InputAccessoryView: UIInputView {
         accessoryContentView.alignment = .center
         accessoryContentView.distribution = .fillProportionally
         
-        addSubview(accessoryContentView)
         backgroundColor = .secondarySystemBackground
         accessoryContentView.translatesAutoresizingMaskIntoConstraints = false
+        
+        addSubview(accessoryContentView)
         NSLayoutConstraint.activate([
             accessoryContentView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: padding),
             accessoryContentView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -padding),
             accessoryContentView.topAnchor.constraint(equalTo: self.topAnchor),
             accessoryContentView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
+        
     }
-    
+ 
     private lazy var buttonDictionary : [EditorSection : UIButton] =
     [.bold: boldButton, .italic: italicButton, .underline: underlineButton, .strikethrough: strikethroughButton,
      .subscriptButton: subscriptButton, .superscript: superscriptButton, .textAlignment: alignmentButton,
@@ -524,6 +533,12 @@ final class InputAccessoryView: UIInputView {
     
     @objc private func selectBackground(_ button: UIButton) {
         delegate.textBackground(color: button.tag == 1 ? textColors.last!  : button.tintColor)
+    }
+    
+    @objc private func pickColor(_ button: UIButton) {
+        let picker = UIColorPickerViewController()
+        let controller=delegate.parent.controller
+        controller.present(picker, animated: true) { button.tintColor = picker.selectedColor }
     }
     
     private func selectedButton(_ button: UIButton, isSelected: Bool) {

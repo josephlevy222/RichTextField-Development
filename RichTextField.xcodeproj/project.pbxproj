@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		375A67282AADEBA70021C14A /* KeyBoardAddition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375A67272AADEBA70021C14A /* KeyBoardAddition.swift */; };
 		377F95C92A93141800A03151 /* RichTextFieldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F95C82A93141800A03151 /* RichTextFieldApp.swift */; };
 		377F95CB2A93141800A03151 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F95CA2A93141800A03151 /* ContentView.swift */; };
 		377F95CD2A93141A00A03151 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 377F95CC2A93141A00A03151 /* Assets.xcassets */; };
@@ -14,10 +15,11 @@
 		377F962C2A93165B00A03151 /* InputAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F96292A93165100A03151 /* InputAccessoryView.swift */; };
 		377F962D2A93165B00A03151 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F962A2A93165300A03151 /* Extensions.swift */; };
 		377F962E2A93165B00A03151 /* TextEditorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F962B2A93165B00A03151 /* TextEditorWrapper.swift */; };
-		377F96302A9317A400A03151 /* UIFontToFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F962F2A9317A400A03151 /* UIFontToFont.swift */; };
+		377F96302A9317A400A03151 /* FontToUIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F962F2A9317A400A03151 /* FontToUIFont.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		375A67272AADEBA70021C14A /* KeyBoardAddition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyBoardAddition.swift; sourceTree = "<group>"; };
 		377F95C52A93141800A03151 /* RichTextField.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RichTextField.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		377F95C82A93141800A03151 /* RichTextFieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichTextFieldApp.swift; sourceTree = "<group>"; };
 		377F95CA2A93141800A03151 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -26,7 +28,7 @@
 		377F96292A93165100A03151 /* InputAccessoryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputAccessoryView.swift; sourceTree = "<group>"; };
 		377F962A2A93165300A03151 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		377F962B2A93165B00A03151 /* TextEditorWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextEditorWrapper.swift; sourceTree = "<group>"; };
-		377F962F2A9317A400A03151 /* UIFontToFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIFontToFont.swift; sourceTree = "<group>"; };
+		377F962F2A9317A400A03151 /* FontToUIFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontToUIFont.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,8 +65,9 @@
 				377F95CA2A93141800A03151 /* ContentView.swift */,
 				377F962A2A93165300A03151 /* Extensions.swift */,
 				377F96292A93165100A03151 /* InputAccessoryView.swift */,
+				375A67272AADEBA70021C14A /* KeyBoardAddition.swift */,
 				377F962B2A93165B00A03151 /* TextEditorWrapper.swift */,
-				377F962F2A9317A400A03151 /* UIFontToFont.swift */,
+				377F962F2A9317A400A03151 /* FontToUIFont.swift */,
 				377F95CC2A93141A00A03151 /* Assets.xcassets */,
 				377F95CE2A93141A00A03151 /* Preview Content */,
 			);
@@ -95,6 +98,8 @@
 			dependencies = (
 			);
 			name = RichTextField;
+			packageProductDependencies = (
+			);
 			productName = RichTextField;
 			productReference = 377F95C52A93141800A03151 /* RichTextField.app */;
 			productType = "com.apple.product-type.application";
@@ -123,6 +128,8 @@
 				Base,
 			);
 			mainGroup = 377F95BC2A93141800A03151;
+			packageReferences = (
+			);
 			productRefGroup = 377F95C62A93141800A03151 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -149,7 +156,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				377F96302A9317A400A03151 /* UIFontToFont.swift in Sources */,
+				375A67282AADEBA70021C14A /* KeyBoardAddition.swift in Sources */,
+				377F96302A9317A400A03151 /* FontToUIFont.swift in Sources */,
 				377F962E2A93165B00A03151 /* TextEditorWrapper.swift in Sources */,
 				377F95CB2A93141800A03151 /* ContentView.swift in Sources */,
 				377F962C2A93165B00A03151 /* InputAccessoryView.swift in Sources */,
@@ -164,6 +172,7 @@
 		377F95D12A93141A00A03151 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -211,11 +220,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -224,6 +235,7 @@
 		377F95D22A93141A00A03151 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -265,10 +277,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "watchsimulator watchos macosx iphonesimulator iphoneos driverkit appletvsimulator appletvos";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
@@ -278,6 +293,11 @@
 		377F95D42A93141B00A03151 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					macOS,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -298,15 +318,23 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.MoundCitySoftware.RichTextField;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3,4";
 			};
 			name = Debug;
 		};
 		377F95D52A93141B00A03151 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					macOS,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -327,9 +355,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.MoundCitySoftware.RichTextField;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3,4";
 			};
 			name = Release;
 		};
