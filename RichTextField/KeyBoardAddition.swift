@@ -7,54 +7,22 @@
 
 import SwiftUI
 
-private struct SizeKey: PreferenceKey {
-    static let defaultValue: CGSize = .zero
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-        value = nextValue()
-    }
-}
-
-extension View {
-    public func captureSize(in binding: Binding<CGSize>) -> some View {
-        overlay(GeometryReader { proxy in
-            Color.clear.preference(key: SizeKey.self, value: proxy.size)
-        })
-        .onPreferenceChange(SizeKey.self) { size in binding.wrappedValue = size  }
-    }
-}
-import Combine
-class KeyBoardAdditionModel: ObservableObject {
-    ///The shared instance of `TextHolder` for access across the frameworks.
-    static let shared = KeyBoardAdditionModel()
-    internal init(selectedRange: NSRange = NSRange(), attributes: [NSAttributedString.Key : Any] = [:], justChanged: Bool = false) {
-        self.selectedRange = selectedRange
-        self.attributes = attributes
-        self.justChanged = justChanged
-        $selectedRange
-            .removeDuplicates()
-            .sink { _ in  }
-            .store(in: &subscribers)
-    }
-    var subscribers = Set<AnyCancellable>()
-
-    ///The currently user selected text range.
-    @Published var selectedRange: NSRange
-    @Published var attributes: [NSAttributedString.Key: Any]
-    ///NOTE: You can comment the next variable out if you do not need to update cursor location
-    ///Whether or not SwiftUI just changed the text
-    @Published var justChanged: Bool
-    
+struct KeyBoardToolBar : Equatable {
+    var textView: TextEditorWrapper.MyTextView
+    var isBold: Bool = false
+    var isItalic: Bool = false
+    var isUnderline: Bool = false
+    var isStrikethrough: Bool = false
+    var isSuperscript: Bool = false
+    var isSubscript: Bool = false
+    var fontSize: CGFloat = 17
+    var textAlignment: NSTextAlignment = .left
+    var color : Color = Color(uiColor: .label)
+    var background: Color = Color(uiColor: .systemBackground)
 }
 
 struct KeyBoardAddition: View {
-    internal init(textView: TextEditorWrapper.MyTextView, toolbar: Binding<(highlighting: [Bool],fontSize: CGFloat,textAlignment: NSTextAlignment,color: Color, background: Color)>) {
-        self.textView = textView
-        self._toolbar = toolbar
-    }
-    
-    var textView: TextEditorWrapper.MyTextView
-    @ObservedObject var keyBoardAdditionModel = KeyBoardAdditionModel()
-    @Binding var toolbar: (highlighting: [Bool],fontSize: CGFloat, textAlignment: NSTextAlignment, color: Color, background: Color)
+    @Binding var toolbar: KeyBoardToolBar
     
     private let buttonWidth: CGFloat = 32
     private let buttonHeight: CGFloat = 32
@@ -67,23 +35,16 @@ struct KeyBoardAddition: View {
     private var imageConf: UIImage.SymbolConfiguration {
         UIImage.SymbolConfiguration(pointSize: min(buttonWidth, buttonHeight) * 0.7)
     }
-    var attributes: [NSAttributedString.Key : Any] { KeyBoardAdditionModel.shared.attributes }
+    var attributes: [NSAttributedString.Key : Any] { toolbar.textView.typingAttributes }
     
     func roundedRectangle(_ highlight: Bool = false) -> some View {
-        RoundedRectangle(cornerRadius: 5).fill(Color(highlight ? selectedColor : .clear))
+        RoundedRectangle(cornerRadius: cornerRadius).fill(Color(highlight ? selectedColor : .clear))
     }
     
-    var isBold: Bool { toolbar.highlighting[0]}
-    var isItalic: Bool { toolbar.highlighting[1]}
-    var isUnderline: Bool { toolbar.highlighting[2]}
-    var isStrikethrough: Bool { toolbar.highlighting[3]}
-    var isSuperscript: Bool { toolbar.highlighting[4]}
-    var isSubscript: Bool { toolbar.highlighting[5]}
-    var textAlignment: NSTextAlignment { toolbar.textAlignment }
     func updateAttributedText(with attributedText: NSAttributedString) {
-        let selection = textView.selectedRange
-        textView.updateAttributedText(with: attributedText)
-        textView.selectedRange = selection
+        let selection = toolbar.textView.selectedRange
+        toolbar.textView.updateAttributedText(with: attributedText)
+        toolbar.textView.selectedRange = selection
     }
     
     var body: some View {
@@ -92,25 +53,25 @@ struct KeyBoardAddition: View {
                 Group {
                     Button(action: toggleBoldface) { Label("", systemImage: "bold") }
                         .padding(edgeInsets)
-                        .background(roundedRectangle(isBold))
+                        .background(roundedRectangle(toolbar.isBold))
                     Button(action: toggleItalics) { Label("", systemImage: "italic") }
                         .padding(edgeInsets)
-                        .background(roundedRectangle(isItalic))
+                        .background(roundedRectangle(toolbar.isItalic))
                     Button(action: toggleUnderline) { Label("", systemImage: "underline") }
                         .padding(edgeInsets)
-                        .background(roundedRectangle(isUnderline))
+                        .background(roundedRectangle(toolbar.isUnderline))
                     Button(action: toggleStrikethrough) { Label("", systemImage: "strikethrough") }
                         .padding(edgeInsets)
-                        .background(roundedRectangle(isStrikethrough))
+                        .background(roundedRectangle(toolbar.isStrikethrough))
                     Button(action: toggleSuperscript) { Label("", systemImage: "textformat.superscript") }
                         .padding(edgeInsets)
-                        .background(roundedRectangle(isSuperscript))
+                        .background(roundedRectangle(toolbar.isSuperscript))
                     Button(action: toggleSubscript) { Label("", systemImage: "textformat.subscript") }
                         .padding(edgeInsets)
-                        .background(roundedRectangle(isSubscript))
+                        .background(roundedRectangle(toolbar.isSubscript))
                     Button(action: increaseFontSize) { Label("", systemImage: "plus.circle") }
                         .padding(edgeInsets)
-                    Text("\(Int(toolbar.fontSize))").font(.body)
+                    Text(String(format: "%.1f", toolbar.fontSize)).font(.body)
                     Button(action: decreaseFontSize) { Label("", systemImage: "minus.circle") }
                         .padding(edgeInsets)
                     Button(action: alignText) { Label("", systemImage: toolbar.textAlignment.imageName)}
@@ -120,37 +81,25 @@ struct KeyBoardAddition: View {
                     .background(roundedRectangle())
                 Spacer()
                 Button(action: {
-                    textView.resignFirstResponder()
+                    toolbar.textView.resignFirstResponder()
                 }) { Label("", systemImage: "keyboard.chevron.compact.down")}
             }.font(.title2)
             HStack {
-                ColorPicker(selection: $toolbar.color, supportsOpacity: true) {Text(" Foreground")}
+                ColorPicker(selection: $toolbar.color, supportsOpacity: true) { Button(" Foreground") { selectColor() } }
                     .fixedSize()
-                    .onChange(of: toolbar.color) { _ in selectColor()}
+                    //.onChange(of: toolbar.color) { _ in selectColor()}
                 
-                ColorPicker(selection: $toolbar.background, supportsOpacity: true, label: {Text("Background")})
+                ColorPicker(selection: $toolbar.background, supportsOpacity: true) { Button("Background") { selectBackground() } }
                     .fixedSize()
-                    .onChange(of: toolbar.background) { _ in selectBackground() }
+                    //.onChange(of: toolbar.background) { _ in selectBackground() }
                 Spacer()
             }.padding(.vertical, 4)
         }
-        
-        
         .background(Color(toolBarsBackground))
-        .onAppear {
-            print("Appearing...")
-            //updateToolbar(typingAttributes: textView.typingAttributes, textAlignment: textView.textAlignment)
-            //            foregroundColor = Color(attributes[.foregroundColor] as? UIColor ?? UIColor.label)
-            //            backgroundColor = Color(attributes[.backgroundColor] as? UIColor ?? UIColor.systemBackground)
-        }
-        .onDisappear {
-            print("Disappearing.")
-        }
-        
     }
     
-    var attributedText: NSAttributedString { textView.attributedText }
-    var selectedRange: NSRange { textView.selectedRange }
+    var attributedText: NSAttributedString { toolbar.textView.attributedText }
+    var selectedRange: NSRange { toolbar.textView.selectedRange }
     
     func toggleStrikethrough() {
         let attributedString = NSMutableAttributedString(attributedString: attributedText)
@@ -283,42 +232,50 @@ struct KeyBoardAddition: View {
     
     private func alignText() {
         var textAlignment: NSTextAlignment
-        switch textView.textAlignment {
+        switch toolbar.textAlignment {
         case .left: textAlignment = .center
         case .center: textAlignment = .right
         case .right: textAlignment = .left
         case .justified: textAlignment = .justified
-        case .natural: textAlignment = .natural
-        @unknown default: textAlignment = .left
+        case .natural: textAlignment = .center
+        @unknown default: textAlignment = .left; print("unknown alignment")
         }
-        textView.textAlignment = textAlignment
+        //print("textView aligned", toolbar.textView.textAlignment.rawValue.description, textAlignment.rawValue)
+        toolbar.textAlignment = textAlignment
+        toolbar.textView.textAlignment = textAlignment
+        if let update = toolbar.textView.delegate?.textViewDidChange {
+            update(toolbar.textView)
+        }
     }
     
     /// Add text attribute to text view
     private func textEffect<T: Equatable>(range: NSRange, key: NSAttributedString.Key, value: T, defaultValue: T) {
         if !range.isEmpty {
-            let mutableString = NSMutableAttributedString(attributedString: textView.attributedText)
+            let mutableString = NSMutableAttributedString(attributedString: toolbar.textView.attributedText)
             mutableString.removeAttribute(key, range: range)
             mutableString.addAttributes([key : value], range: range)
             // Update parent
-            textView.updateAttributedText(with: mutableString)
+            toolbar.textView.updateAttributedText(with: mutableString)
         } else {
-            if let current = textView.typingAttributes[key], current as! T == value  {
-                textView.typingAttributes[key] = defaultValue
+            if let current = toolbar.textView.typingAttributes[key], current as! T == value  {
+                toolbar.textView.typingAttributes[key] = defaultValue
             } else {
-                textView.typingAttributes[key] = value
+                toolbar.textView.typingAttributes[key] = value
             }
         }
-        textView.selectedRange = range // restore selection
+        toolbar.textView.selectedRange = range // restore selection
     }
     
     private func adjustFontSize(isIncrease: Bool) {
+        let textRange = toolbar.textView.selectedRange
         var selectedRangeAttributes: [(NSRange, [NSAttributedString.Key : Any])] {
-            let textRange = textView.selectedRange
-            if textRange.isEmpty { return [(textRange, textView.typingAttributes)]}
             var textAttributes: [(NSRange, [NSAttributedString.Key : Any])] = []
-            textView.attributedText.enumerateAttributes(in: textRange) { attributes, range, stop in
-                textAttributes.append((range,attributes))
+            if textRange.isEmpty {
+                textAttributes = [(textRange, toolbar.textView.typingAttributes)]
+            } else {
+                toolbar.textView.attributedText.enumerateAttributes(in: textRange) { attributes, range, stop in
+                    textAttributes.append((range,attributes))
+                }
             }
             return textAttributes
         }
@@ -327,14 +284,25 @@ struct KeyBoardAddition: View {
         let maxFontSize: CGFloat = 80
         let minFontSize: CGFloat = 8
         let rangesAttributes = selectedRangeAttributes
-        for (range, attributes) in rangesAttributes {
-            font = attributes[.font] as? UIFont ?? defaultFont
+        if textRange.isEmpty {
+            font = selectedRangeAttributes[0].1[.font] as? UIFont ?? defaultFont
             let weight = font.fontDescriptor.symbolicTraits.intersection(.traitBold) == .traitBold ? .bold : font.fontDescriptor.weight
             let size = font.fontDescriptor.pointSize
-            let fontSize = size + CGFloat(isIncrease ? (size < maxFontSize ? 1 : 0) : (size > minFontSize ? -1 : 0))
-            font = UIFont(descriptor: font.fontDescriptor, size: fontSize).withWeight(weight)
-            textEffect(range: range, key: .font, value: font, defaultValue: defaultFont)
+            let fontSize = Int(size + CGFloat(isIncrease ? (size < maxFontSize ? 1 : 0) : (size > minFontSize ? -1 : 0)) + 0.5)
+            font = UIFont(descriptor: font.fontDescriptor, size: Double(fontSize)).withWeight(weight)
+            toolbar.textView.typingAttributes[.font] = font
+            toolbar.fontSize = Double(fontSize)
+        } else {
+            for (range, attributes) in rangesAttributes {
+                font = attributes[.font] as? UIFont ?? defaultFont
+                let weight = font.fontDescriptor.symbolicTraits.intersection(.traitBold) == .traitBold ? .bold : font.fontDescriptor.weight
+                let size = font.fontDescriptor.pointSize
+                let fontSize = Int(size + CGFloat(isIncrease ? (size < maxFontSize ? 1 : 0) : (size > minFontSize ? -1 : 0)) + 0.5)
+                font = UIFont(descriptor: font.fontDescriptor, size: Double(fontSize)).withWeight(weight)
+                textEffect(range: range, key: .font, value: font, defaultValue: defaultFont)
+            }
         }
+        toolbar.textView.selectedRange = textRange // restore range
     }
     
     private func increaseFontSize() {
@@ -350,29 +318,26 @@ struct KeyBoardAddition: View {
 //    }
     
     func insertImage() {
-        let sourceType = UIImagePickerController.SourceType.photoLibrary
-        let imagePicker = UIImagePickerController()
-        //imagePicker.delegate = textView.delegate
-        imagePicker.allowsEditing = true
-        imagePicker.sourceType = sourceType
-        textView.inputAccessoryViewController?.present(imagePicker, animated: true, completion: {})
+        let delegate = toolbar.textView.delegate as? TextEditorWrapper.Coordinator
+        if let delegate { delegate.insertImage() }
     }
     
     // MARK: - Color Selection Button Actions
     private func selectColor() {
         let color = UIColor(toolbar.color)
-        textEffect(range: textView.selectedRange, key: .foregroundColor, value: color, defaultValue: color)
+        textEffect(range: toolbar.textView.selectedRange, key: .foregroundColor, value: color, defaultValue: color)
     }
     
     private func selectBackground() {
         let color = UIColor(toolbar.background)
-        textEffect(range: textView.selectedRange, key: .backgroundColor, value: color, defaultValue: color)
+        textEffect(range: toolbar.textView.selectedRange, key: .backgroundColor, value: color, defaultValue: color)
     }
 
 }
 
 //struct KeyBoardAddition_Previews: PreviewProvider {
+//    @State var toolbar: KeyBoardToolBar = .init(....)
 //    static var previews: some View {
-//        KeyBoardAddition()
+//        KeyBoardAddition(toolbar: .constant(toolbar))
 //    }
 //}

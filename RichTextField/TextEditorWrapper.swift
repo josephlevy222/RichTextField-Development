@@ -12,18 +12,16 @@ public struct RichTextEditor: View {
     @State var dynamicSize = CGSize(width: 100, height: 100)
     @Binding public var attributedText: AttributedString
     private let placeholder: String
-    private let accessorySections: Array<EditorSection>
+    //private let accessorySections: Array<EditorSection>
     private let onCommit: (NSAttributedString) -> Void
     
     public init(
         attributedText: Binding<AttributedString>,
         placeholder: String = "Type ...",
-        accessory sections: Array<EditorSection> = EditorSection.allCases,
         onCommit: @escaping ((NSAttributedString) -> Void) = { _ in}
     ) {
         _attributedText = attributedText
         self.placeholder = placeholder
-        self.accessorySections = sections
         self.onCommit = onCommit
     }
     
@@ -33,20 +31,6 @@ public struct RichTextEditor: View {
                    maxHeight: dynamicSize.height)
     }
 }
-public enum EditorSection: CaseIterable {
-    case bold
-    case italic
-    case underline
-    case strikethrough
-    case subscriptButton
-    case superscript
-    case fontAdjustment
-    case textAlignment
-    case image
-    case color
-    case background
-    case keyboard
-}
 
 extension NSTextAlignment {
     var imageName: String {
@@ -54,23 +38,23 @@ extension NSTextAlignment {
         case .left: return "text.alignleft"
         case .center: return "text.aligncenter"
         case .right: return "text.alignright"
-        case .justified: return "text.justify"
-        case .natural: return "text.aligncenter"
+        case .justified: return "text.natural"
+        case .natural: return "text.alignleft"
         @unknown default: return "text.aligncenter"
         }
     }
     static let available: [NSTextAlignment] = [.left, .right, .center]
 }
-//fileprivate var accessoryViewController = UIHostingController(rootView: KeyBoardAddition())
+
 @available(iOS 13.0, *)
 struct TextEditorWrapper: UIViewControllerRepresentable {
     @Binding var attributedText: AttributedString
     @Binding private var size: CGSize
-    @ObservedObject var keyBoardAdditionModel = KeyBoardAdditionModel.shared
+    
     internal var controller: UIViewController
-    internal var textView: MyTextView
+    //internal var textView: MyTextView { toolbar.textView }
     private var accessoryViewController: UIHostingController<KeyBoardAddition>?
-    //private var viewHolder = ViewHolder.shared
+    
     private let placeholder: String
     private let lineSpacing: CGFloat = 3
     private let hintColor = UIColor.placeholderText
@@ -81,35 +65,34 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
     private var defaultFont: UIFont {
         return UIFont(name: defaultFontName, size: defaultFontSize) ?? .systemFont(ofSize: defaultFontSize)
     }
-    @State var toolbar: (highlighting: [Bool], fontSize: CGFloat, textAlignment: NSTextAlignment,color: Color, background: Color)
     
+    @State var toolbar : KeyBoardToolBar
+    var textView: MyTextView
     // TODO: line width, line style
     init(
         attributedText: Binding<AttributedString>,
         size: Binding<CGSize>,
         placeholder: String,
-        //sections: Array<EditorSection>,
         onCommit: @escaping ((NSAttributedString) -> Void)
     ) {
         _attributedText = attributedText
         self._size = size
         self.controller = UIViewController()
-        self.textView = MyTextView()
-        self._toolbar = State(initialValue: ([false,false,false,false,false,false],17,.left,Color(uiColor: .label),Color(uiColor: .systemBackground)))
-        
+        let newTextView = MyTextView()
+        self.textView = newTextView
         self.placeholder = placeholder
         self.onCommit = onCommit
-        
+        self._toolbar = State(initialValue: KeyBoardToolBar(textView: newTextView, isBold: false, isItalic: false, isUnderline: false, isStrikethrough: false, isSuperscript: false, isSubscript: false, fontSize: 17, color: Color(uiColor: .label), background: Color(uiColor: .systemBackground)))
 
     }
     
     func makeUIViewController(context: Context) -> some UIViewController {
+        toolbar.textView.delegate = context.coordinator
         setUpTextView()
-        textView.delegate = context.coordinator
-        context.coordinator.textViewDidChange(textView)
-        let accessoryViewController = UIHostingController(rootView: KeyBoardAddition(textView: textView, toolbar: $toolbar))
+        context.coordinator.textViewDidChange(toolbar.textView)
+        let accessoryViewController = UIHostingController(rootView: KeyBoardAddition(toolbar: $toolbar))
         
-        textView.inputAccessoryView = {
+        toolbar.textView.inputAccessoryView = {
             let accessoryView = accessoryViewController.view
             if let accessoryView {
                 let frameSize = CGRect(x: 0, y: 0, width: 100, height: 80)
@@ -120,9 +103,9 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
-        let selected = context.coordinator.parent.textView.selectedRange
-        context.coordinator.parent.textView.attributedText =  attributedText.nsAttributedString
-        context.coordinator.parent.textView.selectedRange = selected
+        let selected = context.coordinator.parent.toolbar.textView.selectedRange
+        context.coordinator.parent.toolbar.textView.attributedText =  attributedText.nsAttributedString
+        context.coordinator.parent.toolbar.textView.selectedRange = selected
         // apparently the context is assigned to the "state" after this,
         // so without changing the context nothing happens
     }
@@ -134,29 +117,29 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
     private func setUpTextView() {
         let richText = attributedText.nsAttributedString
         if richText.string == "" {
-            textView.attributedText = NSAttributedString(string: placeholder, attributes: [.foregroundColor: hintColor])
+            toolbar.textView.attributedText = NSAttributedString(string: placeholder, attributes: [.foregroundColor: hintColor])
         } else {
-            textView.attributedText = richText
+            toolbar.textView.attributedText = richText
         }
-        textView.typingAttributes = [.font : defaultFont]
-        textView.isEditable = true
-        textView.isSelectable = true
-        textView.isScrollEnabled = false
-        textView.isUserInteractionEnabled = true
-        textView.textAlignment = .left
-       
-        textView.textContainerInset = UIEdgeInsets.zero
-        textView.textContainer.lineFragmentPadding = 0
-        //textView.layoutManager.allowsNonContiguousLayout = false
-        textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        textView.backgroundColor = .clear
-        textView.textColor = .label
-        controller.view.addSubview(textView)
-        textView.translatesAutoresizingMaskIntoConstraints = false
+        toolbar.textView.typingAttributes = [.font : defaultFont]
+        toolbar.textView.isEditable = true
+        toolbar.textView.isSelectable = true
+        toolbar.textView.isScrollEnabled = false
+        toolbar.textView.isUserInteractionEnabled = true
+        toolbar.textView.textAlignment = .left
+        
+        toolbar.textView.textContainerInset = UIEdgeInsets.zero
+        toolbar.textView.textContainer.lineFragmentPadding = 0
+        //toolbar.textView.layoutManager.allowsNonContiguousLayout = false
+        toolbar.textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        toolbar.textView.backgroundColor = .clear
+        toolbar.textView.textColor = .label
+        controller.view.addSubview(toolbar.textView)
+        toolbar.textView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            textView.centerXAnchor.constraint(equalTo: controller.view.centerXAnchor),
-            textView.centerYAnchor.constraint(equalTo: controller.view.centerYAnchor),
-            textView.widthAnchor.constraint(equalTo: controller.view.widthAnchor),
+            toolbar.textView.centerXAnchor.constraint(equalTo: controller.view.centerXAnchor),
+            toolbar.textView.centerYAnchor.constraint(equalTo: controller.view.centerYAnchor),
+            toolbar.textView.widthAnchor.constraint(equalTo: controller.view.widthAnchor),
         ])
     }
     
@@ -183,15 +166,15 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         // MARK: - Image Picker
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
             if let img = info[UIImagePickerController.InfoKey.editedImage] as? UIImage, var image = img.roundedImageWithBorder(color: .secondarySystemBackground) {
-                textViewDidBeginEditing(parent.textView)
-                let newString = NSMutableAttributedString(attributedString: parent.textView.attributedText)
+                textViewDidBeginEditing(parent.toolbar.textView)
+                let newString = NSMutableAttributedString(attributedString: parent.toolbar.textView.attributedText)
                 image = scaleImage(image: image, maxWidth: 180, maxHeight: 180)
                 
                 let textAttachment = NSTextAttachment(image: image)
                 let attachmentString = NSAttributedString(attachment: textAttachment)
                 newString.append(attachmentString)
-                parent.textView.attributedText = newString
-                textViewDidChange(parent.textView)
+                parent.toolbar.textView.attributedText = newString
+                textViewDidChange(parent.toolbar.textView)
             }
             picker.dismiss(animated: true, completion: nil)
         }
@@ -208,9 +191,9 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         }
         
         // MARK: - Text Editor Delegate
-        func textAlign(align: NSTextAlignment) {
-            parent.textView.textAlignment = align
-        }
+//        func textAlign(align: NSTextAlignment) {
+//            parent.textView.textAlignment = align
+//        }
         
         func adjustFontSize(isIncrease: Bool) {
             var font: UIFont
@@ -230,21 +213,21 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         
         /// Not used yet?
         func textFont(name: String) {
-            let attributes = parent.textView.selectedRange.isEmpty ? parent.textView.typingAttributes : selectedAttributes
+            let attributes = parent.toolbar.textView.selectedRange.isEmpty ? parent.toolbar.textView.typingAttributes : selectedAttributes
             let fontSize = getFontSize(attributes: attributes)
             
             fontName = name
             let defaultFont = UIFont.preferredFont(forTextStyle: .body)
             let newFont = UIFont(name: fontName, size: fontSize) ?? defaultFont
-            textEffect(range: parent.textView.selectedRange, key: .font, value: newFont, defaultValue: defaultFont)
+            textEffect(range: parent.toolbar.textView.selectedRange, key: .font, value: newFont, defaultValue: defaultFont)
         }
         
         func textColor(color: UIColor) {
-            textEffect(range: parent.textView.selectedRange, key: .foregroundColor, value: color, defaultValue: color)
+            textEffect(range: parent.toolbar.textView.selectedRange, key: .foregroundColor, value: color, defaultValue: color)
         }
         
         func textBackground(color: UIColor) {
-            textEffect(range: parent.textView.selectedRange, key: .backgroundColor, value: color, defaultValue: color)
+            textEffect(range: parent.toolbar.textView.selectedRange, key: .backgroundColor, value: color, defaultValue: color)
         }
  
         func insertImage() {
@@ -258,37 +241,35 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         
         func insertLine(name: String) {
             if let line = UIImage(named: name) {
-                let newString = NSMutableAttributedString(attributedString: parent.textView.attributedText)
+                let newString = NSMutableAttributedString(attributedString: parent.toolbar.textView.attributedText)
                 let image = scaleImage(image: line, maxWidth: 280, maxHeight: 20)
                 let attachment = NSTextAttachment(image: image)
                 let attachedString = NSAttributedString(attachment: attachment)
                 newString.append(attachedString)
-                parent.textView.attributedText = newString
+                parent.toolbar.textView.attributedText = newString
             }
         }
         
         func hideKeyboard() {
-            parent.textView.resignFirstResponder()
+            parent.toolbar.textView.resignFirstResponder()
         }
         
         /// Add text attribute to text view
         private func textEffect<T: Equatable>(range: NSRange, key: NSAttributedString.Key, value: T, defaultValue: T) {
             if !range.isEmpty {
-                let mutableString = NSMutableAttributedString(attributedString: parent.textView.attributedText)
+                let mutableString = NSMutableAttributedString(attributedString: parent.toolbar.textView.attributedText)
                 mutableString.removeAttribute(key, range: range)
                 mutableString.addAttributes([key : value], range: range)
                 // Update parent
-                parent.textView.updateAttributedText(with: mutableString)
+                parent.toolbar.textView.updateAttributedText(with: mutableString)
             } else {
-                if let current = parent.textView.typingAttributes[key], current as! T == value  {
-                    parent.textView.typingAttributes[key] = defaultValue
+                if let current = parent.toolbar.textView.typingAttributes[key], current as! T == value  {
+                    parent.toolbar.textView.typingAttributes[key] = defaultValue
                 } else {
-                    parent.textView.typingAttributes[key] = value
+                    parent.toolbar.textView.typingAttributes[key] = value
                 }
             }
-//            parent.keyBoardAdditionModel.attributes = parent.textView.typingAttributes
-//            parent.keyBoardAdditionModel.selectedRange = range
-            parent.textView.selectedRange = range // restore selection
+            parent.toolbar.textView.selectedRange = range // restore selection
         }
         
         private func getFontSize(attributes: [NSAttributedString.Key : Any]) -> CGFloat {
@@ -297,11 +278,11 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         }
         
         var selectedAttributes: [NSAttributedString.Key : Any] {
-            let textRange = parent.textView.selectedRange
-            var textAttributes = parent.textView.typingAttributes
+            let textRange = parent.toolbar.textView.selectedRange
+            var textAttributes = parent.toolbar.textView.typingAttributes
             if !textRange.isEmpty {
                 textAttributes = [:]
-                parent.textView.attributedText.enumerateAttributes(in: textRange) { attributes, range, stop in
+                parent.toolbar.textView.attributedText.enumerateAttributes(in: textRange) { attributes, range, stop in
                     for item in attributes {
                         textAttributes[item.key] = item.value
                         //print( item)
@@ -313,10 +294,10 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         }
         
         var selectedRangeAttributes: [(NSRange, [NSAttributedString.Key : Any])] {
-            let textRange = parent.textView.selectedRange
-            if textRange.isEmpty { return [(textRange, parent.textView.typingAttributes)]}
+            let textRange = parent.toolbar.textView.selectedRange
+            if textRange.isEmpty { return [(textRange, parent.toolbar.textView.typingAttributes)]}
             var textAttributes: [(NSRange, [NSAttributedString.Key : Any])] = []
-            parent.textView.attributedText.enumerateAttributes(in: textRange) { attributes, range, stop in
+            parent.toolbar.textView.attributedText.enumerateAttributes(in: textRange) { attributes, range, stop in
                 textAttributes.append((range,attributes))
             }
             return textAttributes
@@ -359,18 +340,26 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
                 return offset < 0.0
             }
             
-            // These need to only be used if the entire range is the same colors
+            // These need to only be used if the entire range is the same colors needs FIXING
             var color: UIColor { selectedAttributes[.foregroundColor] as? UIColor ?? UIColor.label }
             var background: UIColor  { selectedAttributes[.backgroundColor] as? UIColor ?? UIColor.systemBackground }
             
-            if let color = parent.textView.typingAttributes[.backgroundColor] as? UIColor, color.luminance < 0.55 {
+            if let color = parent.toolbar.textView.typingAttributes[.backgroundColor] as? UIColor, color.luminance < 0.55 {
                 textView.tintColor =  .cyan
             } else {
                 textView.tintColor = .tintColor
             }
-            DispatchQueue.main.async {
-                self.parent.toolbar = ([fontTraits.isBold, fontTraits.isItalic, isUnderline, isStrikethrough, isSuperscript ,isSubscript], fontTraits.fontSize, textView.textAlignment, Color(uiColor: color), Color(uiColor: background))
-                //print("Button values: ", self.parent.toolbar)
+            DispatchQueue.main.async { [self] in
+                parent.toolbar.isBold = fontTraits.isBold
+                parent.toolbar.isItalic = fontTraits.isItalic
+                parent.toolbar.isUnderline = isUnderline
+                parent.toolbar.isStrikethrough = isStrikethrough
+                parent.toolbar.isSuperscript = isSuperscript
+                parent.toolbar.isSubscript = isSubscript
+                parent.toolbar.fontSize = fontTraits.fontSize
+                //parent.toolbar.textAlignment = textView.textAlignment // redundant
+                parent.toolbar.color = Color(uiColor: color)
+                parent.toolbar.background = Color(uiColor: background)
             }
         }
         
@@ -392,8 +381,7 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         }
         
         func textViewDidChange(_ textView: UITextView) {
-            if textView.attributedText.string != parent.placeholder
-                || textView.attributedText != parent.textView.attributedText {
+            if textView.attributedText.string != parent.placeholder {
                 DispatchQueue.main.async {
                     self.parent.attributedText = textView.attributedText.uiFontAttributedString
                 }

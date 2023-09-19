@@ -4,8 +4,22 @@
 //
 //  Created by Steven Zhang on 3/12/22.
 //
+//public enum EditorSection: CaseIterable {
+//    case bold
+//    case italic
+//    case underline
+//    case strikethrough
+//    case subscriptButton
+//    case superscript
+//    case fontAdjustment
+//    case textAlignment
+//    case image
+//    case color
+//    case background
+//    case keyboard
+//}
 import SwiftUI
-
+/*
 @available(iOS 13.0, *)
 final class InputAccessoryView: UIInputView {
     private var accessorySections: Array<EditorSection>
@@ -598,5 +612,4 @@ final class InputAccessoryView: UIInputView {
         }
     }
 }
- 
-
+ ***/

@@ -18,7 +18,6 @@ struct ContentView: View {
     var body: some View {
         VStack(alignment: .leading) {
                 
-                Text(aText.nsAttributedString.uiFontAttributedString)
                 RichTextEditor(attributedText: $text, onCommit: {_ in})
                 
                 Text(text)
@@ -35,12 +34,10 @@ struct ContentView: View {
                     default: break
                     }
                 }
-//                ScrollView {
-//                    Text(text.description).font(.footnote)
-//                }
-            }.padding()
-        }
+            Spacer()
+        }.padding()
     }
+}
 
 
 
