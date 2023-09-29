@@ -67,7 +67,7 @@ extension UIImage {
 
 extension NSRange {
     var isEmpty: Bool {
-        return self.upperBound == self.lowerBound
+        self.length == 0
     }
 }
 

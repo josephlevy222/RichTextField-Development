@@ -12,7 +12,6 @@
 		377F95CB2A93141800A03151 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F95CA2A93141800A03151 /* ContentView.swift */; };
 		377F95CD2A93141A00A03151 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 377F95CC2A93141A00A03151 /* Assets.xcassets */; };
 		377F95D02A93141A00A03151 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 377F95CF2A93141A00A03151 /* Preview Assets.xcassets */; };
-		377F962C2A93165B00A03151 /* InputAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F96292A93165100A03151 /* InputAccessoryView.swift */; };
 		377F962D2A93165B00A03151 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F962A2A93165300A03151 /* Extensions.swift */; };
 		377F962E2A93165B00A03151 /* TextEditorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F962B2A93165B00A03151 /* TextEditorWrapper.swift */; };
 		377F96302A9317A400A03151 /* FontToUIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377F962F2A9317A400A03151 /* FontToUIFont.swift */; };
@@ -25,7 +24,6 @@
 		377F95CA2A93141800A03151 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		377F95CC2A93141A00A03151 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		377F95CF2A93141A00A03151 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		377F96292A93165100A03151 /* InputAccessoryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputAccessoryView.swift; sourceTree = "<group>"; };
 		377F962A2A93165300A03151 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		377F962B2A93165B00A03151 /* TextEditorWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextEditorWrapper.swift; sourceTree = "<group>"; };
 		377F962F2A9317A400A03151 /* FontToUIFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontToUIFont.swift; sourceTree = "<group>"; };
@@ -64,7 +62,6 @@
 				377F95C82A93141800A03151 /* RichTextFieldApp.swift */,
 				377F95CA2A93141800A03151 /* ContentView.swift */,
 				377F962A2A93165300A03151 /* Extensions.swift */,
-				377F96292A93165100A03151 /* InputAccessoryView.swift */,
 				375A67272AADEBA70021C14A /* KeyBoardAddition.swift */,
 				377F962B2A93165B00A03151 /* TextEditorWrapper.swift */,
 				377F962F2A9317A400A03151 /* FontToUIFont.swift */,
@@ -160,7 +157,6 @@
 				377F96302A9317A400A03151 /* FontToUIFont.swift in Sources */,
 				377F962E2A93165B00A03151 /* TextEditorWrapper.swift in Sources */,
 				377F95CB2A93141800A03151 /* ContentView.swift in Sources */,
-				377F962C2A93165B00A03151 /* InputAccessoryView.swift in Sources */,
 				377F95C92A93141800A03151 /* RichTextFieldApp.swift in Sources */,
 				377F962D2A93165B00A03151 /* Extensions.swift in Sources */,
 			);

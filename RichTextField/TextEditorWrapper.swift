@@ -104,8 +104,21 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
         let selected = context.coordinator.parent.toolbar.textView.selectedRange
-        context.coordinator.parent.toolbar.textView.attributedText =  attributedText.nsAttributedString
+        let newText = attributedText.nsAttributedString
+        context.coordinator.parent.toolbar.textView.attributedText =  newText
         context.coordinator.parent.toolbar.textView.selectedRange = selected
+//        if selected.isEmpty && selected.upperBound == newText.length && newText.length != 0 {
+//            //print("Should update typingAttributes if at range end and length is not zero")
+//            var textRange = NSRange(location: selected.upperBound - 1, length: 1)
+//            var textAttributes = context.coordinator.parent.toolbar.textView.typingAttributes
+//            context.coordinator.parent.toolbar.textView.attributedText.enumerateAttributes(in: textRange) { attributes, range, stop in
+//                for item in attributes {
+//                    textAttributes[item.key] = item.value
+//                }
+//            }
+//            context.coordinator.parent.toolbar.textView.typingAttributes = textAttributes
+//            context.coordinator.textViewDidChangeSelection(context.coordinator.parent.toolbar.textView)
+//        }
         // apparently the context is assigned to the "state" after this,
         // so without changing the context nothing happens
     }
@@ -279,17 +292,16 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         
         var selectedAttributes: [NSAttributedString.Key : Any] {
             let textRange = parent.toolbar.textView.selectedRange
+            print("textRange", textRange)
             var textAttributes = parent.toolbar.textView.typingAttributes
             if !textRange.isEmpty {
-                textAttributes = [:]
+                //textAttributes = [:]
                 parent.toolbar.textView.attributedText.enumerateAttributes(in: textRange) { attributes, range, stop in
                     for item in attributes {
                         textAttributes[item.key] = item.value
-                        //print( item)
                     }
                 }
             }
-            //print("Final: ", textAttributes)
             return textAttributes
         }
         
@@ -305,39 +317,56 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         
         // MARK: - Text View Delegate
         func textViewDidChangeSelection(_ textView: UITextView) {
+            let selection = textView.selectedRange
             let attributes = selectedAttributes
-            let fontTraits: (isBold: Bool,isItalic: Bool,fontSize: CGFloat) = {
+            let fontTraits: (isBold: Bool,isItalic: Bool,fontSize: CGFloat, offset: CGFloat) = {
                 if let font=attributes[.font] as? UIFont {
-                    return (font.contains(trait: .traitBold),font.contains(trait: .traitItalic), font.pointSize)
+                    let offset = attributes[.baselineOffset] as? CGFloat ?? 0.0
+                    let pointSize = font.pointSize / (offset == 0.0 ? 1.0 : 0.75)
+                    
+                    return (font.contains(trait: .traitBold),font.contains(trait: .traitItalic), pointSize, offset)
                 } else {
-                    return ( false, false, UIFont.preferredFont(forTextStyle: .body).pointSize)
+                    return ( false, false, UIFont.preferredFont(forTextStyle: .body).pointSize, 0.0)
                 }
             }()
             
+            func justChanged(_ element: Bool) -> (() -> Bool)? {
+                if parent.toolbar.justChanged {
+                    parent.toolbar.justChanged = false
+                    return  { element }
+                } else { return  nil  }
+            }
+            
             var isUnderline: Bool {
-                if let style = attributes[.underlineStyle] as? Int {
-                    return style == NSUnderlineStyle.single.rawValue
-                } else {
-                    return false
-                }
+                (justChanged(parent.toolbar.isUnderline) ?? {
+                    if let style = attributes[.underlineStyle] as? Int {
+                        return style == NSUnderlineStyle.single.rawValue // or true
+                    } else {
+                        return false
+                    }
+                })()
             }
             
             var isStrikethrough: Bool {
-                if let style = attributes[.strikethroughStyle] as? Int {
-                    return style == NSUnderlineStyle.single.rawValue
-                } else {
-                    return false
-                }
+                (justChanged(parent.toolbar.isStrikethrough) ?? {
+                    if let style = attributes[.strikethroughStyle] as? Int {
+                        return style == NSUnderlineStyle.single.rawValue
+                    } else {
+                        return false
+                    }
+                })()
             }
             
             var isSuperscript: Bool {
-                let offset = attributes[.baselineOffset] as? CGFloat ?? 0.0
-                return offset > 0.0
+                //(justChanged(parent.toolbar.isSuperscript) ?? {
+                fontTraits.offset > 0.0
+                //})()
             }
             
             var isSubscript: Bool {
-                let offset = attributes[.baselineOffset] as? CGFloat ?? 0.0
-                return offset < 0.0
+                //(justChanged(parent.toolbar.isSubscript) ?? {
+                fontTraits.offset < 0.0
+                //})()
             }
             
             // These need to only be used if the entire range is the same colors needs FIXING
@@ -350,25 +379,31 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
                 textView.tintColor = .tintColor
             }
             DispatchQueue.main.async { [self] in
+                print("Setting toolbar highlights")
+                parent.toolbar.fontSize = fontTraits.fontSize // (isSuperscript || isSubscript ? 0.75 : 1.0)
                 parent.toolbar.isBold = fontTraits.isBold
                 parent.toolbar.isItalic = fontTraits.isItalic
                 parent.toolbar.isUnderline = isUnderline
                 parent.toolbar.isStrikethrough = isStrikethrough
                 parent.toolbar.isSuperscript = isSuperscript
                 parent.toolbar.isSubscript = isSubscript
-                parent.toolbar.fontSize = fontTraits.fontSize
                 //parent.toolbar.textAlignment = textView.textAlignment // redundant
                 parent.toolbar.color = Color(uiColor: color)
                 parent.toolbar.background = Color(uiColor: background)
             }
         }
         
+        
         func textViewDidBeginEditing(_ textView: UITextView) {
             if textView.attributedText.string == parent.placeholder {
                 textView.attributedText = NSAttributedString(string: "")
                 textView.typingAttributes[.foregroundColor] = UIColor.label
             }
-            textViewDidChangeSelection(textView)
+            print("Did Begin Editing")
+            let selectedRange = textView.selectedRange
+            textView.selectedRange = NSRange()
+            textView.selectedRange = selectedRange
+            //textViewDidChangeSelection(textView)
         }
         
         func textViewDidEndEditing(_ textView: UITextView) {

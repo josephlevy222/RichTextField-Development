@@ -19,6 +19,8 @@ struct KeyBoardToolBar : Equatable {
     var textAlignment: NSTextAlignment = .left
     var color : Color = Color(uiColor: .label)
     var background: Color = Color(uiColor: .systemBackground)
+    
+    var justChanged: Bool = false // when true typingAttributes are not updated in textViewDidSelectionChange
 }
 
 struct KeyBoardAddition: View {
@@ -103,6 +105,13 @@ struct KeyBoardAddition: View {
     
     func toggleStrikethrough() {
         let attributedString = NSMutableAttributedString(attributedString: attributedText)
+        if selectedRange.isEmpty {
+            toolbar.isStrikethrough.toggle()
+            toolbar.textView.typingAttributes[.strikethroughStyle] = toolbar.isStrikethrough ? NSUnderlineStyle.single.rawValue : nil
+            toolbar.justChanged = true
+            if let didChangeSelection = toolbar.textView.delegate?.textViewDidChangeSelection { didChangeSelection(toolbar.textView) }
+            return
+        }
         var isAllStrikethrough = true
         attributedString.enumerateAttribute(.strikethroughStyle,
                                             in: selectedRange,
@@ -123,6 +132,13 @@ struct KeyBoardAddition: View {
     
     func toggleUnderline() {
         let attributedString = NSMutableAttributedString(attributedString: attributedText)
+        if selectedRange.isEmpty {
+            toolbar.isUnderline.toggle()
+            toolbar.textView.typingAttributes[.underlineStyle] = toolbar.isUnderline ? NSUnderlineStyle.single.rawValue : nil
+            toolbar.justChanged = true
+            if let didChangeSelection = toolbar.textView.delegate?.textViewDidChangeSelection { didChangeSelection(toolbar.textView) }
+            return
+        }
         var isAllUnderlined = true
         attributedString.enumerateAttribute(.underlineStyle,
                                             in: selectedRange,
@@ -153,40 +169,99 @@ struct KeyBoardAddition: View {
     }
     
     private func toggleSymbolicTrait(_ trait: UIFontDescriptor.SymbolicTraits) {
-        let attributedString = NSMutableAttributedString(attributedString: attributedText)
-        var isAll = true
-        attributedString.enumerateAttribute(.font, in: selectedRange,
-                                            options: []) { (value, range, stopFlag) in
-            let uiFont = value as? UIFont
+        if selectedRange.isEmpty { // toggle typingAttributes
+            let uiFont = toolbar.textView.typingAttributes[.font] as? UIFont
             if let descriptor = uiFont?.fontDescriptor {
-                isAll = isAll && descriptor.symbolicTraits.intersection(trait) == trait
-                if !isAll { stopFlag.pointee = true }
-            }
-        }
-        attributedString.enumerateAttribute(.font, in: selectedRange,
-                                            options: []) {(value, range, stopFlag) in
-            let uiFont = value as? UIFont
-            if  let descriptor = uiFont?.fontDescriptor {
+                let isBold = descriptor.symbolicTraits.intersection(.traitBold) == .traitBold
+                let isTrait = descriptor.symbolicTraits.intersection(trait) == trait
                 // Fix bug in largeTitle by setting bold weight directly
-                var weight = descriptor.symbolicTraits.intersection(.traitBold) == .traitBold ? .bold : descriptor.weight
-                weight = trait != .traitBold ? weight : (isAll ? .regular : .bold)
-                if let fontDescriptor = isAll ? descriptor.withSymbolicTraits(descriptor.symbolicTraits.subtracting(trait))
+                var weight = isBold ? .bold : descriptor.weight
+                weight = trait != .traitBold ? weight : (isBold ? .regular : .bold)
+                if let fontDescriptor = isTrait ? descriptor.withSymbolicTraits(descriptor.symbolicTraits.subtracting(trait))
                     : descriptor.withSymbolicTraits(descriptor.symbolicTraits.union(trait)) {
-                    attributedString.addAttribute(.font, value: UIFont(descriptor: fontDescriptor.withWeight(weight),
-                                                                       size: descriptor.pointSize), range: range)
+                    toolbar.textView.typingAttributes[.font] = UIFont(descriptor: fontDescriptor.withWeight(weight),
+                                                                      size: descriptor.pointSize)
+                }
+                if let didChangeSelection = toolbar.textView.delegate?.textViewDidChangeSelection { didChangeSelection(toolbar.textView) }
+            }
+            
+        } else {
+            let attributedString = NSMutableAttributedString(attributedString: attributedText)
+            var isAll = true
+            attributedString.enumerateAttribute(.font, in: selectedRange,
+                                                options: []) { (value, range, stopFlag) in
+                let uiFont = value as? UIFont
+                if let descriptor = uiFont?.fontDescriptor {
+                    isAll = isAll && descriptor.symbolicTraits.intersection(trait) == trait
+                    if !isAll { stopFlag.pointee = true }
                 }
             }
+            attributedString.enumerateAttribute(.font, in: selectedRange,
+                                                options: []) {(value, range, stopFlag) in
+                let uiFont = value as? UIFont
+                if  let descriptor = uiFont?.fontDescriptor {
+                    // Fix bug in largeTitle by setting bold weight directly
+                    var weight = descriptor.symbolicTraits.intersection(.traitBold) == .traitBold ? .bold : descriptor.weight
+                    weight = trait != .traitBold ? weight : (isAll ? .regular : .bold)
+                    if let fontDescriptor = isAll ? descriptor.withSymbolicTraits(descriptor.symbolicTraits.subtracting(trait))
+                        : descriptor.withSymbolicTraits(descriptor.symbolicTraits.union(trait)) {
+                        attributedString.addAttribute(.font, value: UIFont(descriptor: fontDescriptor.withWeight(weight),
+                                                                           size: descriptor.pointSize), range: range)
+                    }
+                }
+            }
+            updateAttributedText(with: attributedString)
         }
-        updateAttributedText(with: attributedString)
     }
     
-    private func toggleSubscript() { toggleScript(sub: true) }
+    private func toggleSubscript() { toolbar.isSubscript.toggle(); toggleScript(sub: true) }
     
-    private func toggleSuperscript() { toggleScript(sub: false) }
+    private func toggleSuperscript() { toolbar.isSuperscript.toggle(); toggleScript(sub: false) }
     
     private func toggleScript(sub: Bool = false) {
+        //let selectedRange = toolbar.textView.selectedRange
         let newOffset = sub ? -0.3 : 0.4
         let attributedString = NSMutableAttributedString(attributedString: attributedText)
+        
+        if selectedRange.isEmpty { // toggle typingAttributes
+            //let isScriptFlag = !toolbar.isSubscript || !toolbar.isSuperscript
+            var fontSize = toolbar.fontSize
+            let isScript = toolbar.textView.typingAttributes[.baselineOffset] as? CGFloat ?? 0.0 != 0.0
+            if toolbar.isSubscript && toolbar.isSuperscript {
+                // Turn one off
+                if sub { toolbar.isSuperscript = false } else { toolbar.isSubscript = false }
+                // Check that baseline is offset the right way
+                if !isScript {
+                    print("baseline not as expected");
+                    fontSize /= 0.75
+                } else {
+                    toolbar.textView.typingAttributes[.baselineOffset] = newOffset*toolbar.fontSize
+                }
+            }
+            if !toolbar.isSubscript && !toolbar.isSuperscript {
+                // Both set off so adjust baseline and font
+                toolbar.textView.typingAttributes[.baselineOffset] = nil
+                //fontSize /= 0.75
+            } else {
+                // One is on
+                if isScript { print("baseline was expected to be nil")}
+                toolbar.textView.typingAttributes[.baselineOffset] = newOffset*toolbar.fontSize
+                fontSize *= 0.75
+            }
+            var newFont : UIFont
+            let descriptor: UIFontDescriptor
+            if let font = toolbar.textView.typingAttributes[.font] as? UIFont {
+                descriptor = font.fontDescriptor
+                newFont = UIFont(descriptor: descriptor, size: fontSize)
+                if descriptor.symbolicTraits.intersection(.traitItalic) == .traitItalic, let font = newFont.italic() {
+                    newFont = font
+                }
+            } else { newFont = UIFont.preferredFont(forTextStyle: .body) }
+            toolbar.textView.typingAttributes[.font] =  newFont
+            updateAttributedText(with: attributedString)
+            return
+        }
+        
         var isAllScript = true
         attributedString.enumerateAttributes(in: selectedRange,
                                              options: []) { (attributes, range, stopFlag) in
@@ -227,6 +302,7 @@ struct KeyBoardAddition: View {
             attributedString.addAttribute(.font, value: newFont, range: range)
         }
         updateAttributedText(with: attributedString)
+        
     }
     
     
@@ -256,7 +332,7 @@ struct KeyBoardAddition: View {
             mutableString.addAttributes([key : value], range: range)
             // Update parent
             toolbar.textView.updateAttributedText(with: mutableString)
-        } else {
+        } else { print("empty texteffect")
             if let current = toolbar.textView.typingAttributes[key], current as! T == value  {
                 toolbar.textView.typingAttributes[key] = defaultValue
             } else {
@@ -335,9 +411,9 @@ struct KeyBoardAddition: View {
 
 }
 
-//struct KeyBoardAddition_Previews: PreviewProvider {
-//    @State var toolbar: KeyBoardToolBar = .init(....)
-//    static var previews: some View {
-//        KeyBoardAddition(toolbar: .constant(toolbar))
-//    }
-//}
+struct KeyBoardAddition_Previews: PreviewProvider {
+    @State static var toolbar: KeyBoardToolBar = .init(textView: TextEditorWrapper.MyTextView(), isUnderline: true)
+    static var previews: some View {
+        KeyBoardAddition(toolbar: .constant(toolbar))
+    }
+}
