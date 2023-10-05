@@ -107,18 +107,7 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         let newText = attributedText.nsAttributedString
         context.coordinator.parent.toolbar.textView.attributedText =  newText
         context.coordinator.parent.toolbar.textView.selectedRange = selected
-//        if selected.isEmpty && selected.upperBound == newText.length && newText.length != 0 {
-//            //print("Should update typingAttributes if at range end and length is not zero")
-//            var textRange = NSRange(location: selected.upperBound - 1, length: 1)
-//            var textAttributes = context.coordinator.parent.toolbar.textView.typingAttributes
-//            context.coordinator.parent.toolbar.textView.attributedText.enumerateAttributes(in: textRange) { attributes, range, stop in
-//                for item in attributes {
-//                    textAttributes[item.key] = item.value
-//                }
-//            }
-//            context.coordinator.parent.toolbar.textView.typingAttributes = textAttributes
-//            context.coordinator.textViewDidChangeSelection(context.coordinator.parent.toolbar.textView)
-//        }
+
         // apparently the context is assigned to the "state" after this,
         // so without changing the context nothing happens
     }
@@ -319,55 +308,55 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         func textViewDidChangeSelection(_ textView: UITextView) {
             let selection = textView.selectedRange
             let attributes = selectedAttributes
+            
             let fontTraits: (isBold: Bool,isItalic: Bool,fontSize: CGFloat, offset: CGFloat) = {
                 if let font=attributes[.font] as? UIFont {
                     let offset = attributes[.baselineOffset] as? CGFloat ?? 0.0
-                    let pointSize = font.pointSize / (offset == 0.0 ? 1.0 : 0.75)
-                    
+                    let pointSize: CGFloat
+                    if parent.toolbar.justChanged { pointSize = parent.toolbar.fontSize }
+                    else {  pointSize = font.pointSize / (offset == 0.0 ? 1.0 : 0.75) }
+                    // pointSize is the fontSize that the toolbar ought to use unless justChanged
                     return (font.contains(trait: .traitBold),font.contains(trait: .traitItalic), pointSize, offset)
                 } else {
                     return ( false, false, UIFont.preferredFont(forTextStyle: .body).pointSize, 0.0)
                 }
             }()
             
-            func justChanged(_ element: Bool) -> (() -> Bool)? {
-                if parent.toolbar.justChanged {
-                    parent.toolbar.justChanged = false
-                    return  { element }
-                } else { return  nil  }
-            }
-            
             var isUnderline: Bool {
-                (justChanged(parent.toolbar.isUnderline) ?? {
+                parent.toolbar.justChanged ? parent.toolbar.isUnderline : {
                     if let style = attributes[.underlineStyle] as? Int {
                         return style == NSUnderlineStyle.single.rawValue // or true
                     } else {
                         return false
                     }
-                })()
+                }()
             }
             
             var isStrikethrough: Bool {
-                (justChanged(parent.toolbar.isStrikethrough) ?? {
+                parent.toolbar.justChanged ? parent.toolbar.isStrikethrough : {
                     if let style = attributes[.strikethroughStyle] as? Int {
                         return style == NSUnderlineStyle.single.rawValue
                     } else {
                         return false
                     }
-                })()
+                }()
             }
             
-            var isSuperscript: Bool {
-                //(justChanged(parent.toolbar.isSuperscript) ?? {
-                fontTraits.offset > 0.0
-                //})()
+            var isScript: (sub: Bool,super: Bool) {
+                let value: (Bool,Bool)
+                if parent.toolbar.justChanged {
+                    value = (parent.toolbar.isSubscript, parent.toolbar.isSuperscript)
+                    print("just changed")
+                } else {
+                    //if !(attributes[.baselineOffset] as? CGFloat ?? 0.0 == 0.0) {
+                        value = (fontTraits.offset < 0.0, fontTraits.offset > 0.0)
+                    //} else {  value = (false, false)}
+                }
+                print(value)
+                return value
             }
             
-            var isSubscript: Bool {
-                //(justChanged(parent.toolbar.isSubscript) ?? {
-                fontTraits.offset < 0.0
-                //})()
-            }
+            
             
             // These need to only be used if the entire range is the same colors needs FIXING
             var color: UIColor { selectedAttributes[.foregroundColor] as? UIColor ?? UIColor.label }
@@ -380,16 +369,20 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
             }
             DispatchQueue.main.async { [self] in
                 print("Setting toolbar highlights")
-                parent.toolbar.fontSize = fontTraits.fontSize // (isSuperscript || isSubscript ? 0.75 : 1.0)
+                
+                parent.toolbar.fontSize = fontTraits.fontSize
+               
                 parent.toolbar.isBold = fontTraits.isBold
                 parent.toolbar.isItalic = fontTraits.isItalic
                 parent.toolbar.isUnderline = isUnderline
                 parent.toolbar.isStrikethrough = isStrikethrough
-                parent.toolbar.isSuperscript = isSuperscript
-                parent.toolbar.isSubscript = isSubscript
+                let script = isScript
+                parent.toolbar.isSuperscript = script.1 //isSuperscript
+                parent.toolbar.isSubscript = script.0 //isSubscript
                 //parent.toolbar.textAlignment = textView.textAlignment // redundant
                 parent.toolbar.color = Color(uiColor: color)
                 parent.toolbar.background = Color(uiColor: background)
+                parent.toolbar.justChanged = false
             }
         }
         

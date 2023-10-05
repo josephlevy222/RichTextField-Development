@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-struct KeyBoardToolBar : Equatable {
+struct KeyBoardToolBar  {
+    
     var textView: TextEditorWrapper.MyTextView
     var isBold: Bool = false
     var isItalic: Bool = false
@@ -20,7 +21,7 @@ struct KeyBoardToolBar : Equatable {
     var color : Color = Color(uiColor: .label)
     var background: Color = Color(uiColor: .systemBackground)
     
-    var justChanged: Bool = false // when true typingAttributes are not updated in textViewDidSelectionChange
+    var justChanged: Bool = false
 }
 
 struct KeyBoardAddition: View {
@@ -89,11 +90,8 @@ struct KeyBoardAddition: View {
             HStack {
                 ColorPicker(selection: $toolbar.color, supportsOpacity: true) { Button(" Foreground") { selectColor() } }
                     .fixedSize()
-                    //.onChange(of: toolbar.color) { _ in selectColor()}
-                
                 ColorPicker(selection: $toolbar.background, supportsOpacity: true) { Button("Background") { selectBackground() } }
                     .fixedSize()
-                    //.onChange(of: toolbar.background) { _ in selectBackground() }
                 Spacer()
             }.padding(.vertical, 4)
         }
@@ -214,9 +212,15 @@ struct KeyBoardAddition: View {
         }
     }
     
-    private func toggleSubscript() { toolbar.isSubscript.toggle(); toggleScript(sub: true) }
+    private func toggleSubscript() {
+        toolbar.isSubscript.toggle()
+        toggleScript(sub: true)
+    }
     
-    private func toggleSuperscript() { toolbar.isSuperscript.toggle(); toggleScript(sub: false) }
+    private func toggleSuperscript() {
+        toolbar.isSuperscript.toggle()
+        toggleScript(sub: false)
+    }
     
     private func toggleScript(sub: Bool = false) {
         //let selectedRange = toolbar.textView.selectedRange
@@ -224,29 +228,31 @@ struct KeyBoardAddition: View {
         let attributedString = NSMutableAttributedString(attributedString: attributedText)
         
         if selectedRange.isEmpty { // toggle typingAttributes
-            //let isScriptFlag = !toolbar.isSubscript || !toolbar.isSuperscript
             var fontSize = toolbar.fontSize
-            let isScript = toolbar.textView.typingAttributes[.baselineOffset] as? CGFloat ?? 0.0 != 0.0
+            print("Original fontSize =",fontSize)
+            let isScript = !(toolbar.textView.typingAttributes[.baselineOffset] as? CGFloat ?? 0.0 == 0.0)
             if toolbar.isSubscript && toolbar.isSuperscript {
                 // Turn one off
                 if sub { toolbar.isSuperscript = false } else { toolbar.isSubscript = false }
                 // Check that baseline is offset the right way
-                if !isScript {
-                    print("baseline not as expected");
-                    fontSize /= 0.75
-                } else {
-                    toolbar.textView.typingAttributes[.baselineOffset] = newOffset*toolbar.fontSize
+                toolbar.textView.typingAttributes[.baselineOffset] = newOffset*toolbar.fontSize
+                // font is already right?
+                if !isScript { // baseline is zero but still script
+                    fontSize *= 0.75
+                    print("baseline not as expected, fontSize =",fontSize)
                 }
             }
             if !toolbar.isSubscript && !toolbar.isSuperscript {
                 // Both set off so adjust baseline and font
                 toolbar.textView.typingAttributes[.baselineOffset] = nil
-                //fontSize /= 0.75
+                // use toolbar.fontSize
+                print("baseline is set nil with fontSize =",fontSize)
             } else {
                 // One is on
                 if isScript { print("baseline was expected to be nil")}
                 toolbar.textView.typingAttributes[.baselineOffset] = newOffset*toolbar.fontSize
                 fontSize *= 0.75
+                print("one is on with fontSize =",fontSize)
             }
             var newFont : UIFont
             let descriptor: UIFontDescriptor
@@ -258,7 +264,8 @@ struct KeyBoardAddition: View {
                 }
             } else { newFont = UIFont.preferredFont(forTextStyle: .body) }
             toolbar.textView.typingAttributes[.font] =  newFont
-            updateAttributedText(with: attributedString)
+            toolbar.justChanged = true
+            if let didChangeSelection = toolbar.textView.delegate?.textViewDidChangeSelection { didChangeSelection(toolbar.textView) }
             return
         }
         
@@ -316,7 +323,6 @@ struct KeyBoardAddition: View {
         case .natural: textAlignment = .center
         @unknown default: textAlignment = .left; print("unknown alignment")
         }
-        //print("textView aligned", toolbar.textView.textAlignment.rawValue.description, textAlignment.rawValue)
         toolbar.textAlignment = textAlignment
         toolbar.textView.textAlignment = textAlignment
         if let update = toolbar.textView.delegate?.textViewDidChange {
@@ -362,19 +368,21 @@ struct KeyBoardAddition: View {
         let rangesAttributes = selectedRangeAttributes
         if textRange.isEmpty {
             font = selectedRangeAttributes[0].1[.font] as? UIFont ?? defaultFont
+            let offset = selectedRangeAttributes[0].1[.baselineOffset] as? CGFloat ?? 0.0
             let weight = font.fontDescriptor.symbolicTraits.intersection(.traitBold) == .traitBold ? .bold : font.fontDescriptor.weight
-            let size = font.fontDescriptor.pointSize
+            let size = toolbar.fontSize
             let fontSize = Int(size + CGFloat(isIncrease ? (size < maxFontSize ? 1 : 0) : (size > minFontSize ? -1 : 0)) + 0.5)
-            font = UIFont(descriptor: font.fontDescriptor, size: Double(fontSize)).withWeight(weight)
+            font = UIFont(descriptor: font.fontDescriptor, size: CGFloat(fontSize) * (offset == 0 ? 1.0 : 0.75) ).withWeight(weight)
             toolbar.textView.typingAttributes[.font] = font
-            toolbar.fontSize = Double(fontSize)
+            toolbar.fontSize = CGFloat(fontSize)
         } else {
             for (range, attributes) in rangesAttributes {
                 font = attributes[.font] as? UIFont ?? defaultFont
+                let offset = selectedRangeAttributes[0].1[.baselineOffset] as? CGFloat ?? 0.0
                 let weight = font.fontDescriptor.symbolicTraits.intersection(.traitBold) == .traitBold ? .bold : font.fontDescriptor.weight
-                let size = font.fontDescriptor.pointSize
+                let size = font.fontDescriptor.pointSize / (offset == 0 ? 1.0 : 0.75 )
                 let fontSize = Int(size + CGFloat(isIncrease ? (size < maxFontSize ? 1 : 0) : (size > minFontSize ? -1 : 0)) + 0.5)
-                font = UIFont(descriptor: font.fontDescriptor, size: Double(fontSize)).withWeight(weight)
+                font = UIFont(descriptor: font.fontDescriptor, size: CGFloat(fontSize) * (offset == 0 ? 1.0 : 0.75) ).withWeight(weight)
                 textEffect(range: range, key: .font, value: font, defaultValue: defaultFont)
             }
         }
@@ -388,10 +396,6 @@ struct KeyBoardAddition: View {
     private func decreaseFontSize() {
         adjustFontSize(isIncrease: false)
     }
-    
-//    private func textFont(font: String) {
-//        textView.textFont(name: font)
-//    }
     
     func insertImage() {
         let delegate = toolbar.textView.delegate as? TextEditorWrapper.Coordinator
