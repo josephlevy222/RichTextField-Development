@@ -452,7 +452,7 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
             }
             return super.canPerformAction(action, withSender: sender)
         }
-        
+        /// Make this work with undo/redo
         public func updateAttributedText(with attributedString: NSAttributedString) {
             attributedText = attributedString
             if let update = delegate?.textViewDidChange {

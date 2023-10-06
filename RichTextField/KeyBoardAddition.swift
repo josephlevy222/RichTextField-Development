@@ -30,7 +30,7 @@ struct KeyBoardAddition: View {
     private let buttonWidth: CGFloat = 32
     private let buttonHeight: CGFloat = 32
     private let cornerRadius: CGFloat = 6
-    private let edgeInsets = EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 0)
+    private let edgeInsets = EdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
     private let selectedColor = UIColor.separator
     private let containerBackgroundColor: UIColor = .systemBackground
     private let toolBarsBackground: UIColor = .systemGroupedBackground
@@ -42,6 +42,7 @@ struct KeyBoardAddition: View {
     
     func roundedRectangle(_ highlight: Bool = false) -> some View {
         RoundedRectangle(cornerRadius: cornerRadius).fill(Color(highlight ? selectedColor : .clear))
+            .frame(width: buttonWidth, height: buttonHeight)
     }
     
     func updateAttributedText(with attributedText: NSAttributedString) {
@@ -52,35 +53,35 @@ struct KeyBoardAddition: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack (spacing: 1) {
                 Group {
-                    Button(action: toggleBoldface) { Label("", systemImage: "bold") }
-                        .padding(edgeInsets)
+                    Button(action: toggleBoldface) { Image(systemName: "bold") }
+                        .frame(width: buttonWidth, height: buttonHeight)
                         .background(roundedRectangle(toolbar.isBold))
-                    Button(action: toggleItalics) { Label("", systemImage: "italic") }
-                        .padding(edgeInsets)
+                    Button(action: toggleItalics) { Image(systemName: "italic") }
+                        .frame(width: buttonWidth, height: buttonHeight)
                         .background(roundedRectangle(toolbar.isItalic))
-                    Button(action: toggleUnderline) { Label("", systemImage: "underline") }
-                        .padding(edgeInsets)
+                    Button(action: toggleUnderline) { Image(systemName: "underline") }
+                        .frame(width: buttonWidth, height: buttonHeight)
                         .background(roundedRectangle(toolbar.isUnderline))
-                    Button(action: toggleStrikethrough) { Label("", systemImage: "strikethrough") }
-                        .padding(edgeInsets)
+                    Button(action: toggleStrikethrough) { Image(systemName: "strikethrough") }
+                        .frame(width: buttonWidth, height: buttonHeight)
                         .background(roundedRectangle(toolbar.isStrikethrough))
-                    Button(action: toggleSuperscript) { Label("", systemImage: "textformat.superscript") }
-                        .padding(edgeInsets)
+                    Button(action: toggleSuperscript) { Image(systemName: "textformat.superscript") }
+                        .frame(width: buttonWidth, height: buttonHeight)
                         .background(roundedRectangle(toolbar.isSuperscript))
-                    Button(action: toggleSubscript) { Label("", systemImage: "textformat.subscript") }
-                        .padding(edgeInsets)
+                    Button(action: toggleSubscript) { Image(systemName: "textformat.subscript") }
+                        .frame(width: buttonWidth, height: buttonHeight)
                         .background(roundedRectangle(toolbar.isSubscript))
-                    Button(action: increaseFontSize) { Label("", systemImage: "plus.circle") }
+                    Button(action: increaseFontSize) { Image(systemName: "plus.circle") }
                         .padding(edgeInsets)
                     Text(String(format: "%.1f", toolbar.fontSize)).font(.body)
-                    Button(action: decreaseFontSize) { Label("", systemImage: "minus.circle") }
+                    Button(action: decreaseFontSize) { Image(systemName: "minus.circle") }
                         .padding(edgeInsets)
-                    Button(action: alignText) { Label("", systemImage: toolbar.textAlignment.imageName)}
+                    Button(action: alignText) { Image(systemName: toolbar.textAlignment.imageName)}
                 }
-                Button(action: insertImage) { Label("", systemImage: "photo.on.rectangle.angled") }
-                    .padding(edgeInsets)
+                Button(action: insertImage) { Image(systemName: "photo.on.rectangle.angled") }
+                    .frame(width: buttonWidth, height: buttonHeight)
                     .background(roundedRectangle())
                 Spacer()
                 Button(action: {
@@ -168,6 +169,7 @@ struct KeyBoardAddition: View {
     
     private func toggleSymbolicTrait(_ trait: UIFontDescriptor.SymbolicTraits) {
         if selectedRange.isEmpty { // toggle typingAttributes
+            toolbar.justChanged = true
             let uiFont = toolbar.textView.typingAttributes[.font] as? UIFont
             if let descriptor = uiFont?.fontDescriptor {
                 let isBold = descriptor.symbolicTraits.intersection(.traitBold) == .traitBold

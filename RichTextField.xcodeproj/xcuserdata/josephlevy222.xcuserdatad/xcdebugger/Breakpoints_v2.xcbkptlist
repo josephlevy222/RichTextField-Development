@@ -222,8 +222,8 @@
             filePath = "RichTextField/KeyBoardAddition.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "138"
-            endingLineNumber = "138"
+            startingLineNumber = "139"
+            endingLineNumber = "139"
             landmarkName = "toggleUnderline()"
             landmarkType = "7">
             <Locations>
@@ -270,8 +270,8 @@
             filePath = "RichTextField/KeyBoardAddition.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "134"
-            endingLineNumber = "134"
+            startingLineNumber = "135"
+            endingLineNumber = "135"
             landmarkName = "toggleUnderline()"
             landmarkType = "7">
             <Locations>
@@ -318,8 +318,8 @@
             filePath = "RichTextField/KeyBoardAddition.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "220"
-            endingLineNumber = "220"
+            startingLineNumber = "222"
+            endingLineNumber = "222"
             landmarkName = "toggleSuperscript()"
             landmarkType = "7">
          </BreakpointContent>
@@ -334,8 +334,8 @@
             filePath = "RichTextField/KeyBoardAddition.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "227"
-            endingLineNumber = "227"
+            startingLineNumber = "229"
+            endingLineNumber = "229"
             landmarkName = "toggleScript(sub:)"
             landmarkType = "7">
             <Locations>
@@ -382,8 +382,8 @@
             filePath = "RichTextField/KeyBoardAddition.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "222"
-            endingLineNumber = "222"
+            startingLineNumber = "224"
+            endingLineNumber = "224"
             landmarkName = "toggleSuperscript()"
             landmarkType = "7">
             <Locations>
@@ -430,8 +430,8 @@
             filePath = "RichTextField/KeyBoardAddition.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "217"
-            endingLineNumber = "217"
+            startingLineNumber = "219"
+            endingLineNumber = "219"
             landmarkName = "toggleSubscript()"
             landmarkType = "7">
             <Locations>
@@ -478,8 +478,8 @@
             filePath = "RichTextField/KeyBoardAddition.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "221"
-            endingLineNumber = "221"
+            startingLineNumber = "223"
+            endingLineNumber = "223"
             landmarkName = "toggleSuperscript()"
             landmarkType = "7">
             <Locations>

@@ -46,3 +46,74 @@ struct ContentView_Previews: PreviewProvider {
         ContentView(text: aText)
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+struct MyTextView: UIViewRepresentable {
+    
+    /// The underlying UITextView. This is a binding so that a parent view can access it. You do not assign this value. It is created automatically.
+    @Binding var undoManager: UndoManager?
+    
+    func makeUIView(context: Context) -> UITextView {
+        let uiTextView = UITextView()
+        
+        // Expose the UndoManager to the caller. This is performed asynchronously to avoid modifying the view at an inappropriate time.
+        DispatchQueue.main.async {
+            undoManager = uiTextView.undoManager
+        }
+        
+        return uiTextView
+    }
+    
+    func updateUIView(_ uiView: UITextView, context: Context) {
+    }
+    
+}
+
+struct ContentView2: View {
+    
+    /// The underlying UndoManager. Even though it looks like we are creating one here, ultimately, MyTextView will set it to its internal UndoManager.
+    @State private var undoManager: UndoManager? = UndoManager()
+    
+    var body: some View {
+        NavigationView {
+            MyTextView(undoManager: $undoManager)
+                .toolbar {
+                    ToolbarItem {
+                        Button {
+                            undoManager?.undo()
+                        } label: {
+                            Image(systemName: "arrow.uturn.left.circle")
+                        }
+                    }
+                }
+        }
+    }
+}
