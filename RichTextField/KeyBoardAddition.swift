@@ -225,7 +225,8 @@ struct KeyBoardAddition: View {
     }
     
     private func toggleScript(sub: Bool = false) {
-        //let selectedRange = toolbar.textView.selectedRange
+        print("In toggleScript with sub: ", sub)
+        let selectedRange = toolbar.textView.selectedRange
         let newOffset = sub ? -0.3 : 0.4
         let attributedString = NSMutableAttributedString(attributedString: attributedText)
         
@@ -282,9 +283,11 @@ struct KeyBoardAddition: View {
                 var newFont : UIFont
                 let descriptor: UIFontDescriptor
                 if let font = attributes[.font] as? UIFont {
+                    print("Enlarging font")
                     descriptor = font.fontDescriptor
                     newFont = UIFont(descriptor: descriptor, size: descriptor.pointSize/0.75)
                     attributedString.removeAttribute(.baselineOffset, range: range)
+                    attributedString.removeAttribute(.font, range: range)
                     if descriptor.symbolicTraits.intersection(.traitItalic) == .traitItalic, let font = newFont.italic() {
                         newFont = font
                     }
@@ -292,24 +295,32 @@ struct KeyBoardAddition: View {
                 attributedString.addAttribute(.font, value: newFont, range: range)
             }
         }
-        attributedString.enumerateAttributes(in: selectedRange,
-                                             options: []) {(attributes, range, stopFlag) in
-            var newFont : UIFont
-            let descriptor: UIFontDescriptor
-            if let font = attributes[.font] as? UIFont {
-                descriptor = font.fontDescriptor
-                newFont = font
-                if !isAllScript { // everything is already normal if isAllScript
+        // Now attributedString is free of scripts so if isAllScript we are done
+        if !isAllScript {
+            // set to script
+            print("Setting script")
+            attributedString.enumerateAttributes(in: selectedRange,
+                                                 options: []) {(attributes, range, stopFlag) in
+                var newFont : UIFont
+                let descriptor: UIFontDescriptor
+                if let font = attributes[.font] as? UIFont {
+                    descriptor = font.fontDescriptor
                     attributedString.addAttribute(.baselineOffset, value: newOffset*descriptor.pointSize,
                                                   range: range)
                     newFont = UIFont(descriptor: descriptor, size: 0.75*descriptor.pointSize)
-                }
-                if descriptor.symbolicTraits.intersection(.traitItalic) == .traitItalic, let font = newFont.italic() {
-                    newFont = font
-                }
-            } else { newFont = UIFont.preferredFont(forTextStyle: .body) }
-            attributedString.addAttribute(.font, value: newFont, range: range)
+                    if descriptor.symbolicTraits.intersection(.traitItalic) == .traitItalic, let font = newFont.italic() {
+                        newFont = font
+                    }
+                } else { newFont = UIFont.preferredFont(forTextStyle: .body) }
+                attributedString.addAttribute(.font, value: newFont, range: range)
+            }
         }
+        //toolbar.textView.attributedText = attributedString
+ //       toolbar.justChanged = true
+  //      if let didChangeSelection = toolbar.textView.delegate?.textViewDidChangeSelection { didChangeSelection(toolbar.textView) }
+//        return
+        //toolbar.justChanged = true
+        //toolbar.textView.selectedRange = selectedRange
         updateAttributedText(with: attributedString)
         
     }

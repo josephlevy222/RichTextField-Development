@@ -45,20 +45,23 @@ extension NSAttributedString {
 
 extension AttributedString {
     
-    public var nsAttributedString : NSAttributedString { convertToUIAttributes() }
+    //public var nsAttributedString : NSAttributedString { convertToUIAttributes() }
     
     public func convertToUIAttributes(traitCollection: UITraitCollection? = nil) -> NSMutableAttributedString {
-        let nsAttributedString = NSMutableAttributedString(self)
+        let nsAttributedString = NSMutableAttributedString()
+        var runNumber = 0
         for run in runs {
-            let nsRange = NSRange(run.range, in: self[run.range])
+            runNumber += 1; print("Run:",runNumber, terminator: " ")
             // Get NSAttributes
-            var nsAttributes = NSMutableAttributedString(AttributedString(self[run.range]))
-                .attributes(at: 0, effectiveRange: nil)
+            let nsText = NSAttributedString(AttributedString(self[run.range]))
+            var nsAttributes = nsText.attributes(at: 0, effectiveRange: nil)
+            let nsAttributedText = NSMutableAttributedString(AttributedString(self[run.range].characters))
             // Handle font  /// A property for accessing a font attribute.
             if let font = run.font { // SwiftUI Font exists
                 if let uiFont = resolveFont(font)?.font(with: traitCollection) {
                     nsAttributes[.font] = uiFont // add font
                 }  else { // Already UIFont or default
+                    print("font not resolved",font)
                     if nsAttributes[.font] == nil {
                         nsAttributes[.font] = UIFont.preferredFont(forTextStyle: .body, compatibleWith: traitCollection)}
                 }
@@ -80,21 +83,34 @@ extension AttributedString {
             // underlineStyle /// A property for accessing an underline style attribute.
             if let underlineStyle = run.underlineStyle {
                 if nsAttributes[.underlineStyle] == nil {
+                    //nsText.removeAttribute(.underlineStyle, range: NSRange(location: 0, length: nsText.length))
                     nsAttributes[.underlineStyle] =  underlineStyle }
             }
             // kern /// A property for accessing a kerning attribute.
-            if let kern = run.kern { nsAttributes[.kern] = kern }
-            // tracking /// A property for accessing a tracking attribute.
-            if  let tracking = run.tracking { nsAttributes[.tracking] = tracking }
-            // baselineOffset /// A property for accessing a baseline offset attribute.
-            if let baselineOffset = run.baselineOffset { nsAttributes[.baselineOffset] = baselineOffset }
-            if !nsAttributes.isEmpty {
-                nsAttributedString.setAttributes(nsAttributes, range: nsRange)
+            if let kern = run.kern {
+                nsAttributes[.kern] = kern
             }
+            // tracking /// A property for accessing a tracking attribute.
+            if  let tracking = run.tracking {
+                nsAttributes[.tracking] = tracking
+            }
+            // baselineOffset /// A property for accessing a baseline offset attribute.
+            if let baselineOffset = run.baselineOffset {
+                nsAttributes[.baselineOffset] = nil
+                nsAttributes[.baselineOffset] = baselineOffset
+                print("Baseline: \(baselineOffset)",terminator: " ")
+            }
+            if !nsAttributes.isEmpty {
+                nsAttributedText.setAttributes(nsAttributes, range: NSRange(location: 0, length: nsAttributedText.length))
+            }
+            nsAttributedString.append(nsAttributedText)
         }
+        print("")
+        //self = nsAttributedString.attributedString
         return nsAttributedString
     }
 }
+ 
 
 /// AttributedString(styledMarkdown: String, fonts: [Font]) puts fonts into Headers 1-6
 /// and setFont for SwiftUI.Font, along with setBold, and setItalic that work with SwiftUI.Font and UIFont

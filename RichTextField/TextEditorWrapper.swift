@@ -11,6 +11,7 @@ import SwiftUI
 public struct RichTextEditor: View {
     @State var dynamicSize = CGSize(width: 100, height: 100)
     @Binding public var attributedText: AttributedString
+    @State var undoManager : UndoManager?
     private let placeholder: String
     //private let accessorySections: Array<EditorSection>
     private let onCommit: (NSAttributedString) -> Void
@@ -26,7 +27,7 @@ public struct RichTextEditor: View {
     }
     
     public var body: some View {
-        TextEditorWrapper(attributedText: $attributedText, size: $dynamicSize, placeholder: placeholder, onCommit: onCommit)
+        TextEditorWrapper(attributedText: $attributedText,undoManager: $undoManager, size: $dynamicSize, placeholder: placeholder, onCommit: onCommit)
             .frame(minHeight: dynamicSize.height ,
                    maxHeight: dynamicSize.height)
     }
@@ -49,6 +50,7 @@ extension NSTextAlignment {
 @available(iOS 13.0, *)
 struct TextEditorWrapper: UIViewControllerRepresentable {
     @Binding var attributedText: AttributedString
+    @Binding var undoManager: UndoManager?
     @Binding private var size: CGSize
     
     internal var controller: UIViewController
@@ -71,11 +73,13 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
     // TODO: line width, line style
     init(
         attributedText: Binding<AttributedString>,
+        undoManager: Binding<UndoManager?>,
         size: Binding<CGSize>,
         placeholder: String,
         onCommit: @escaping ((NSAttributedString) -> Void)
     ) {
         _attributedText = attributedText
+        _undoManager = undoManager
         self._size = size
         self.controller = UIViewController()
         let newTextView = MyTextView()
@@ -89,9 +93,11 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> some UIViewController {
         toolbar.textView.delegate = context.coordinator
         setUpTextView()
-        context.coordinator.textViewDidChange(toolbar.textView)
         let accessoryViewController = UIHostingController(rootView: KeyBoardAddition(toolbar: $toolbar))
-        
+        DispatchQueue.main.async {
+            undoManager = self.textView.undoManager
+            context.coordinator.textViewDidChange(toolbar.textView)
+        }
         toolbar.textView.inputAccessoryView = {
             let accessoryView = accessoryViewController.view
             if let accessoryView {
@@ -104,7 +110,7 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
     
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
         let selected = context.coordinator.parent.toolbar.textView.selectedRange
-        let newText = attributedText.nsAttributedString
+        let newText = attributedText.convertToUIAttributes()
         context.coordinator.parent.toolbar.textView.attributedText =  newText
         context.coordinator.parent.toolbar.textView.selectedRange = selected
 
@@ -117,7 +123,7 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
     }
     
     private func setUpTextView() {
-        let richText = attributedText.nsAttributedString
+        let richText = attributedText.convertToUIAttributes()
         if richText.string == "" {
             toolbar.textView.attributedText = NSAttributedString(string: placeholder, attributes: [.foregroundColor: hintColor])
         } else {
@@ -263,6 +269,7 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
                 mutableString.removeAttribute(key, range: range)
                 mutableString.addAttributes([key : value], range: range)
                 // Update parent
+                //parent.attributedText = parent.toolbar.textView.attributedText.attributedString
                 parent.toolbar.textView.updateAttributedText(with: mutableString)
             } else {
                 if let current = parent.toolbar.textView.typingAttributes[key], current as! T == value  {
@@ -281,7 +288,6 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         
         var selectedAttributes: [NSAttributedString.Key : Any] {
             let textRange = parent.toolbar.textView.selectedRange
-            print("textRange", textRange)
             var textAttributes = parent.toolbar.textView.typingAttributes
             if !textRange.isEmpty {
                 //textAttributes = [:]
@@ -306,20 +312,25 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         
         // MARK: - Text View Delegate
         func textViewDidChangeSelection(_ textView: UITextView) {
-            let selection = textView.selectedRange
             let attributes = selectedAttributes
             
             let fontTraits: (isBold: Bool,isItalic: Bool,fontSize: CGFloat, offset: CGFloat) = {
-                if let font=attributes[.font] as? UIFont {
-                    let offset = attributes[.baselineOffset] as? CGFloat ?? 0.0
-                    let pointSize: CGFloat
-                    if parent.toolbar.justChanged { pointSize = parent.toolbar.fontSize }
-                    else {  pointSize = font.pointSize / (offset == 0.0 ? 1.0 : 0.75) }
-                    // pointSize is the fontSize that the toolbar ought to use unless justChanged
-                    return (font.contains(trait: .traitBold),font.contains(trait: .traitItalic), pointSize, offset)
-                } else {
-                    return ( false, false, UIFont.preferredFont(forTextStyle: .body).pointSize, 0.0)
+                let offset = attributes[.baselineOffset] as? CGFloat ?? 0.0
+                print ("offset<0 : \(offset<0.0), offset>0 : \(offset>0.0), with offset = \(offset)")
+                let pointSize: CGFloat
+                if parent.toolbar.justChanged {
+                    pointSize = parent.toolbar.fontSize
                 }
+                else {
+                    if let font=attributes[.font] as? UIFont {
+                        pointSize = font.pointSize / (offset == 0.0 ? 1.0 : 0.75)
+                        // pointSize is the fontSize that the toolbar ought to use unless justChanged
+                        return (font.contains(trait: .traitBold),font.contains(trait: .traitItalic), pointSize, offset)
+                    }
+                    print("Non UIFont in fontTraits")
+                    pointSize = UIFont.preferredFont(forTextStyle: .body).pointSize
+                }
+                return ( false, false, pointSize, offset)
             }()
             
             var isUnderline: Bool {
@@ -367,23 +378,24 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
             } else {
                 textView.tintColor = .tintColor
             }
-            DispatchQueue.main.async { [self] in
-                print("Setting toolbar highlights")
-                
-                parent.toolbar.fontSize = fontTraits.fontSize
-               
-                parent.toolbar.isBold = fontTraits.isBold
-                parent.toolbar.isItalic = fontTraits.isItalic
-                parent.toolbar.isUnderline = isUnderline
-                parent.toolbar.isStrikethrough = isStrikethrough
-                let script = isScript
-                parent.toolbar.isSuperscript = script.1 //isSuperscript
-                parent.toolbar.isSubscript = script.0 //isSubscript
-                //parent.toolbar.textAlignment = textView.textAlignment // redundant
-                parent.toolbar.color = Color(uiColor: color)
-                parent.toolbar.background = Color(uiColor: background)
-                parent.toolbar.justChanged = false
-            }
+                DispatchQueue.main.async { [self] in
+                    print("Setting toolbar highlights")
+                    
+                    parent.toolbar.fontSize = fontTraits.fontSize
+                    
+                    parent.toolbar.isBold = fontTraits.isBold
+                    parent.toolbar.isItalic = fontTraits.isItalic
+                    parent.toolbar.isUnderline = isUnderline
+                    parent.toolbar.isStrikethrough = isStrikethrough
+                    let script = isScript
+                    parent.toolbar.isSuperscript = script.1 //isSuperscript
+                    parent.toolbar.isSubscript = script.0 //isSubscript
+                    //parent.toolbar.textAlignment = textView.textAlignment // redundant
+                    parent.toolbar.color = Color(uiColor: color)
+                    parent.toolbar.background = Color(uiColor: background)
+                    parent.toolbar.justChanged = false
+                }
+            
         }
         
         
@@ -393,10 +405,14 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
                 textView.typingAttributes[.foregroundColor] = UIColor.label
             }
             print("Did Begin Editing")
+            textView.undoManager?.registerUndo(withTarget: self, handler: { targetSelf in
+                print("Doing undo")
+                //targetSelf.attributedText = targetSelf.oldtext
+            })
+            
             let selectedRange = textView.selectedRange
             textView.selectedRange = NSRange()
             textView.selectedRange = selectedRange
-            //textViewDidChangeSelection(textView)
         }
         
         func textViewDidEndEditing(_ textView: UITextView) {
@@ -409,10 +425,10 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         }
         
         func textViewDidChange(_ textView: UITextView) {
+            
             if textView.attributedText.string != parent.placeholder {
-                DispatchQueue.main.async {
-                    self.parent.attributedText = textView.attributedText.uiFontAttributedString
-                }
+                self.parent.attributedText = textView.attributedText.uiFontAttributedString
+                print("textViewDidChange")
             }
             let size = CGSize(width: parent.controller.view.frame.width, height: .infinity)
             let estimatedSize = textView.sizeThatFits(size)
@@ -432,9 +448,10 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
             builder.remove(menu: .lookup) // Remove Lookup, Translate, Search Web
             //builder.remove(menu: .standardEdit) // Keep Cut, Copy, Paste
             //builder.remove(menu: .replace) // Keep Replace
+#if !targetEnvironment(macCatalyst)
             builder.remove(menu: .share) // Remove Share
             builder.remove(menu: .textStyle) // Remove Format
-
+#endif
             super.buildMenu(with: builder)
         }
         
