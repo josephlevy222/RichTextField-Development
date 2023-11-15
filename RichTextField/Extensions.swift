@@ -71,12 +71,6 @@ extension NSRange {
     }
 }
 
-extension UIFont {
-    func contains(trait: UIFontDescriptor.SymbolicTraits) -> Bool {
-        fontDescriptor.symbolicTraits.intersection(trait) == trait
-    }
-}
-
 extension UIColor {
     
     // get a complementary color to this color

@@ -55,54 +55,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "D1673CB2-4161-4D44-B04D-5326C610394F"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RichTextField/FontToUIFont.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "36"
-            endingLineNumber = "36"
-            landmarkName = "uiFontAttributedString"
-            landmarkType = "24">
-            <Locations>
-               <Location
-                  uuid = "D1673CB2-4161-4D44-B04D-5326C610394F - 44d516be7633407a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__C.NSAttributedString.uiFontAttributedString.getter : Foundation.AttributedString"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/FontToUIFont.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "36"
-                  endingLineNumber = "36"
-                  offsetFromSymbolStart = "2248">
-               </Location>
-               <Location
-                  uuid = "D1673CB2-4161-4D44-B04D-5326C610394F - 44d516be7633407a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__C.NSAttributedString.uiFontAttributedString.getter : Foundation.AttributedString"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/FontToUIFont.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "36"
-                  endingLineNumber = "36"
-                  offsetFromSymbolStart = "2363">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "16610BC8-AC56-4CFE-AD5C-9B72BF556188"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -142,8 +94,8 @@
             filePath = "RichTextField/TextEditorWrapper.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "294"
-            endingLineNumber = "294"
+            startingLineNumber = "286"
+            endingLineNumber = "286"
             landmarkName = "selectedAttributes"
             landmarkType = "24">
             <Locations>
@@ -190,8 +142,8 @@
             filePath = "RichTextField/TextEditorWrapper.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "297"
-            endingLineNumber = "297"
+            startingLineNumber = "289"
+            endingLineNumber = "289"
             landmarkName = "selectedAttributes"
             landmarkType = "24">
          </BreakpointContent>
@@ -206,8 +158,8 @@
             filePath = "RichTextField/TextEditorWrapper.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "300"
-            endingLineNumber = "300"
+            startingLineNumber = "292"
+            endingLineNumber = "292"
             landmarkName = "selectedAttributes"
             landmarkType = "24">
          </BreakpointContent>
@@ -222,8 +174,8 @@
             filePath = "RichTextField/TextEditorWrapper.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "114"
-            endingLineNumber = "114"
+            startingLineNumber = "112"
+            endingLineNumber = "112"
             landmarkName = "updateUIViewController(_:context:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -238,314 +190,10 @@
             filePath = "RichTextField/TextEditorWrapper.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "38"
-            endingLineNumber = "38"
+            startingLineNumber = "37"
+            endingLineNumber = "37"
             landmarkName = "imageName"
             landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "14009092-6330-4F4E-B26C-78F876C99015"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RichTextField/KeyBoardAddition.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "139"
-            endingLineNumber = "139"
-            landmarkName = "toggleUnderline()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "14009092-6330-4F4E-B26C-78F876C99015 - 9b089484a01ebb70"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleUnderline() -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "133"
-                  endingLineNumber = "133"
-                  offsetFromSymbolStart = "1337">
-               </Location>
-               <Location
-                  uuid = "14009092-6330-4F4E-B26C-78F876C99015 - 9b089484a01ebbce"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleUnderline() -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "135"
-                  endingLineNumber = "135"
-                  offsetFromSymbolStart = "126">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "EA8502CF-EAF9-451C-9A74-3EBDE4E75CF1"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RichTextField/KeyBoardAddition.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "135"
-            endingLineNumber = "135"
-            landmarkName = "toggleUnderline()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "EA8502CF-EAF9-451C-9A74-3EBDE4E75CF1 - 9b089484a01ebb51"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleUnderline() -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "132"
-                  endingLineNumber = "132"
-                  offsetFromSymbolStart = "1309">
-               </Location>
-               <Location
-                  uuid = "EA8502CF-EAF9-451C-9A74-3EBDE4E75CF1 - 9b089484a01ebb51"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleUnderline() -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "132"
-                  endingLineNumber = "132"
-                  offsetFromSymbolStart = "152">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "15C94243-8DD1-4FC6-A169-6C1F1E51CA7C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RichTextField/KeyBoardAddition.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "222"
-            endingLineNumber = "222"
-            landmarkName = "toggleSuperscript()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "464EDA85-69BA-4E4B-8678-9BAA5B1F49D3"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RichTextField/KeyBoardAddition.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "230"
-            endingLineNumber = "230"
-            landmarkName = "toggleScript(sub:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "464EDA85-69BA-4E4B-8678-9BAA5B1F49D3 - c103827d56c7d1eb"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleScript(sub: Swift.Bool) -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "240"
-                  endingLineNumber = "240"
-                  offsetFromSymbolStart = "281">
-               </Location>
-               <Location
-                  uuid = "464EDA85-69BA-4E4B-8678-9BAA5B1F49D3 - c103827d56c7d608"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleScript(sub: Swift.Bool) -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "239"
-                  endingLineNumber = "239"
-                  offsetFromSymbolStart = "281">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "6B099216-3BE0-41AF-AC58-E014CE978D6B"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RichTextField/KeyBoardAddition.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "224"
-            endingLineNumber = "224"
-            landmarkName = "toggleSuperscript()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "6B099216-3BE0-41AF-AC58-E014CE978D6B - b9f96c62032d450b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleSuperscript() -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "234"
-                  endingLineNumber = "234"
-                  offsetFromSymbolStart = "597">
-               </Location>
-               <Location
-                  uuid = "6B099216-3BE0-41AF-AC58-E014CE978D6B - b9f96c62032d450b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleSuperscript() -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "234"
-                  endingLineNumber = "234"
-                  offsetFromSymbolStart = "628">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "5F3E7361-708C-4749-A5F2-2BD0EFF4D95B"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RichTextField/KeyBoardAddition.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "219"
-            endingLineNumber = "219"
-            landmarkName = "toggleSubscript()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "5F3E7361-708C-4749-A5F2-2BD0EFF4D95B - b9f96c62032d4412"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleSuperscript() -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "227"
-                  endingLineNumber = "227"
-                  offsetFromSymbolStart = "34">
-               </Location>
-               <Location
-                  uuid = "5F3E7361-708C-4749-A5F2-2BD0EFF4D95B - 936017261225302d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleSubscript() -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "227"
-                  endingLineNumber = "227"
-                  offsetFromSymbolStart = "76">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "F2E27F2B-F964-47D0-AB2E-0CB0BA211D97"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RichTextField/KeyBoardAddition.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "223"
-            endingLineNumber = "223"
-            landmarkName = "toggleSuperscript()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "F2E27F2B-F964-47D0-AB2E-0CB0BA211D97 - b9f96c62032d454d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleSuperscript() -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "232"
-                  endingLineNumber = "232"
-                  offsetFromSymbolStart = "77">
-               </Location>
-               <Location
-                  uuid = "F2E27F2B-F964-47D0-AB2E-0CB0BA211D97 - b9f96c62032d454d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "RichTextField.KeyBoardAddition.toggleSuperscript() -&gt; ()"
-                  moduleName = "RichTextField"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/josephlevy222/Projects/RichTextField/RichTextField/KeyBoardAddition.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "232"
-                  endingLineNumber = "232"
-                  offsetFromSymbolStart = "303">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -558,42 +206,10 @@
             filePath = "RichTextField/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "26"
-            endingLineNumber = "26"
+            startingLineNumber = "27"
+            endingLineNumber = "27"
             landmarkName = "body"
             landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "3836049C-52DB-47AA-9BC4-4B7304104086"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RichTextField/KeyBoardAddition.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "308"
-            endingLineNumber = "308"
-            landmarkName = "toggleScript(sub:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "16D65E20-38D4-4BE5-8AE6-0F1E964FD00D"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "RichTextField/KeyBoardAddition.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "324"
-            endingLineNumber = "324"
-            landmarkName = "toggleScript(sub:)"
-            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

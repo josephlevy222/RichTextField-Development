@@ -6,23 +6,27 @@
 //
 
 import SwiftUI
-// Conversion code for SwiftUI.Font to UIFont and AttributedString to
-// NSAttributedString Starts here
+/// Conversion code for SwiftUI.Font to UIFont and AttributedString to NSAttributedString Starts here
 extension UIFont {
     public convenience init(font: Font, traitCollection: UITraitCollection? = nil) {
         if let uiFont = resolveFont(font) { self.init(descriptor: uiFont.fontDescriptor(with: traitCollection), size: 0)}
         else { self.init() }
     }
+    
+    func contains(trait: UIFontDescriptor.SymbolicTraits) -> Bool {
+        fontDescriptor.symbolicTraits.intersection(trait) == trait
+    }
+    
 }
 
 extension NSAttributedString {
-    public var attributedString : AttributedString { AttributedString(self) }
-    public var uiFontAttributedString : AttributedString {
+    public var attributedString : AttributedString { AttributedString(self) } /// Don't Use
+    public var uiFontAttributedString : AttributedString { /// Need uiKit so use this one
         let attributedText = self
         var returnValue = {
             do { return try AttributedString(attributedText, including: \.uiKit) }
             catch {
-                print("\\.uiKet include failed")
+                print("\\.uiKit include failed")
                 return AttributedString(attributedText)
             }
         }()
@@ -30,13 +34,7 @@ extension NSAttributedString {
             let nsAttributes = NSAttributedString(AttributedString(returnValue[run.range]))
                 .attributes(at: 0, effectiveRange: nil)
             if let uiFont = nsAttributes[.font] as? UIFont {
-                returnValue[run.range].font = uiFont
-            }
-            if let underline = nsAttributes[.underlineStyle] as? NSUnderlineStyle {
-                returnValue[run.range].underlineStyle = .init(nsUnderlineStyle: underline)
-            }
-            if let background = nsAttributes[.backgroundColor] as? UIColor {
-                returnValue[run.range].backgroundColor = .init(uiColor: background)
+                returnValue[run.range].font = uiFont // sets font as SwiftUI.Font
             }
         }
         return returnValue
@@ -45,13 +43,11 @@ extension NSAttributedString {
 
 extension AttributedString {
     
-    //public var nsAttributedString : NSAttributedString { convertToUIAttributes() }
+    public var nsAttributedString : NSAttributedString { convertToUIAttributes() }
     
-    public func convertToUIAttributes(traitCollection: UITraitCollection? = nil) -> NSMutableAttributedString {
+    public func convertToUIAttributes(traitCollection: UITraitCollection? = .current) -> NSMutableAttributedString {
         let nsAttributedString = NSMutableAttributedString()
-        var runNumber = 0
         for run in runs {
-            runNumber += 1; print("Run:",runNumber, terminator: " ")
             // Get NSAttributes
             let nsText = NSAttributedString(AttributedString(self[run.range]))
             var nsAttributes = nsText.attributes(at: 0, effectiveRange: nil)
@@ -67,46 +63,41 @@ extension AttributedString {
                 }
             }
             // Handle other SwiftUIAttributes
-            // foregroundColor /// A property for accessing a foreground color attribute.
-            if let color = run.foregroundColor, color != nsAttributes[.foregroundColor] as? Color {
-                nsAttributes[.foregroundColor] = UIColor(color)
-            } else { if nsAttributes[.foregroundColor] == nil { nsAttributes[.foregroundColor] = UIColor.label }}
-            // backgroundColor /// A property for accessing a background color attribute.
-            if let color = run.backgroundColor, color != nsAttributes[.backgroundColor] as? Color {
-                nsAttributes[.backgroundColor] = UIColor(color)
-            }
-            // strikethroughStyle /// A property for accessing a strikethrough style attribute.
+            /// strikethroughStyle /// A property for accessing a strikethrough style attribute.
             if let strikethroughStyle = run.strikethroughStyle {
                 if nsAttributes[.strikethroughStyle] == nil {
                     nsAttributes[.strikethroughStyle] = strikethroughStyle }
             }
-            // underlineStyle /// A property for accessing an underline style attribute.
+            /// underlineStyle /// A property for accessing an underline style attribute.
             if let underlineStyle = run.underlineStyle {
                 if nsAttributes[.underlineStyle] == nil {
-                    //nsText.removeAttribute(.underlineStyle, range: NSRange(location: 0, length: nsText.length))
                     nsAttributes[.underlineStyle] =  underlineStyle }
             }
-            // kern /// A property for accessing a kerning attribute.
+            /// kern /// A property for accessing a kerning attribute.
             if let kern = run.kern {
                 nsAttributes[.kern] = kern
             }
-            // tracking /// A property for accessing a tracking attribute.
+            /// tracking /// A property for accessing a tracking attribute.
             if  let tracking = run.tracking {
                 nsAttributes[.tracking] = tracking
             }
-            // baselineOffset /// A property for accessing a baseline offset attribute.
+            /// baselineOffset /// A property for accessing a baseline offset attribute.
             if let baselineOffset = run.baselineOffset {
-                nsAttributes[.baselineOffset] = nil
                 nsAttributes[.baselineOffset] = baselineOffset
-                print("Baseline: \(baselineOffset)",terminator: " ")
+            }
+            /// foregroundColor /// A property for accessing a foreground color attribute.
+            if let color = run.foregroundColor, color != nsAttributes[.foregroundColor] as? Color {
+                nsAttributes[.foregroundColor] = UIColor(color)
+            } else { if nsAttributes[.foregroundColor] == nil { nsAttributes[.foregroundColor] = UIColor.label }}
+            /// backgroundColor /// A property for accessing a background color attribute.
+            if let color = run.backgroundColor, color != nsAttributes[.backgroundColor] as? Color {
+                nsAttributes[.backgroundColor] = UIColor(color)
             }
             if !nsAttributes.isEmpty {
                 nsAttributedText.setAttributes(nsAttributes, range: NSRange(location: 0, length: nsAttributedText.length))
             }
             nsAttributedString.append(nsAttributedText)
         }
-        print("")
-        //self = nsAttributedString.attributedString
         return nsAttributedString
     }
 }
@@ -133,16 +124,10 @@ extension AttributedString {
         for (intentBlock, intentRange) in output.runs[IntentAttribute.self].reversed() {
             guard let intentBlock = intentBlock else { continue }
             for intent in intentBlock.components {
-                switch intent.kind {
-                case .header(level: let level):
-                    switch level {
-                    case 0...6:
+                if case .header(level: let level) = intent.kind {
+                    if level > 0 && level < fontStyles.count {
                         output[intentRange].font = UIFont.preferredFont(forTextStyle: UIFont.preferredFontStyle(from: fontStyles[level]))
-                    default:
-                        break
                     }
-                default:
-                    break
                 }
             }
             if insertCR && intentRange.lowerBound != output.startIndex {
@@ -168,7 +153,7 @@ extension AttributedString {
             else {
                 if let font = run.font {
                     if let uiFont = resolveFont(font)?.font(with: nil) {
-                        newAS[run.range].font = nil // erase SwiftUI.Font
+                        newAS[run.range].font = nil /// erase SwiftUI.Font - Don't understand what this does
                         newAS[run.range].font = uiFont.bold() ?? uiFont // add font
                     } else { newAS[run.range].font = font.bold() }
                 }
@@ -177,17 +162,16 @@ extension AttributedString {
         return newAS
     }
     
-    public func setItalic() -> AttributedString { //Still setItalic
+    public func setItalic() -> AttributedString {
         var newAS = self
         for run in runs {
             if let uiFont = NSAttributedString(AttributedString(self[run.range]))
                 .attributes(at: 0, effectiveRange: nil)[.font] as? UIFont  {
-                newAS[run.range].font = nil
-                newAS[run.range].font = uiFont.italic() }
-            else {
+                let isBold = uiFont.contains(trait: .traitBold)
+                newAS[run.range].font = isBold ? uiFont.italic()?.withWeight(.bold) ?? uiFont.bold() : uiFont.italic()
+            } else {
                 if let font = run.font {
                     if let uiFont = resolveFont(font)?.font(with: nil) {
-                        newAS[run.range].font = nil
                         newAS[run.range].font = uiFont.italic() ?? uiFont // add font
                     } else { newAS[run.range].font = font.italic() }
                 }
@@ -195,7 +179,15 @@ extension AttributedString {
         }
         return newAS
     }
+    
+    public func setUnderline() -> AttributedString {
+        var newAS = self
+        newAS.underlineStyle = NSUnderlineStyle(.single)
+        return newAS
+    }
+    
 }
+
 
 extension String {
     public func markdownToAttributed() -> AttributedString {
@@ -289,7 +281,7 @@ protocol FontValueModifier: FontModifier {
     init(value: Any)
 }
 
-//Next, we can implement the “root” providers, System­Provider, Named­Provider, and TextStyleProvider:
+///Next, we can implement the “root” providers, System­Provider, Named­Provider, TextStyleProvider, and PlatformFontProvider:
 struct SystemProvider: FontProvider {
     var size: CGFloat
     var design: UIFontDescriptor.SystemDesign
@@ -343,6 +335,7 @@ struct TextStyleProvider: FontProvider {
     }
 }
 
+// The PlatformFontProvider holds a UIFont so this is a simple as can be
 struct PlatformFontProvider: FontProvider {
     var uiFont: UIFont
     func fontDescriptor(with traitCollection: UITraitCollection?) -> UIFontDescriptor {
@@ -484,66 +477,3 @@ func resolveFontProvider(_ provider: Any) -> FontProvider? {
         return nil
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    public func resetBold() -> AttributedString { //Still setBold
-//        var newAS = self
-//        for run in runs {
-//            if let uiFont = NSAttributedString(AttributedString(self[run.range]))
-//                .attributes(at: 0, effectiveRange: nil)[.font] as? UIFont  {
-//                newAS[run.range].font = nil // just in case Font is still there
-//                newAS[run.range].font = uiFont.bold() }
-//            else {
-//                if let font = run.font {
-//                    if let uiFont = resolveFont(font)?.font(with: nil) {
-//                        newAS[run.range].font = nil // erase SwiftUI.Font
-//                        newAS[run.range].font = uiFont.bold() ?? uiFont // add font
-//                    } else { newAS[run.range].font = font.bold() }
-//                }
-//            }
-//        }
-//        return newAS
-//    }
-
-//    public func resetItalic() -> AttributedString {
-//        var newAS = self
-//        for run in runs {
-//            if let uiFont = NSAttributedString(AttributedString(self[run.range]))
-//                .attributes(at: 0, effectiveRange: nil)[.font] as? UIFont  {
-//                newAS[run.range].font = nil
-//                newAS[run.range].font = uiFont.italic() }
-//            else {
-//                if let font = run.font {
-//                    if let uiFont = resolveFont(font)?.font(with: nil) {
-//                        newAS[run.range].font = nil
-//                        newAS[run.range].font = uiFont.italic() ?? uiFont // add font
-//                    } else { newAS[run.range].font = font.italic() }
-//                }
-//            }
-//        }
-//        return newAS
-//    }

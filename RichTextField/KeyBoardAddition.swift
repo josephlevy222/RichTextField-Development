@@ -86,7 +86,7 @@ struct KeyBoardAddition: View {
                 Spacer()
                 Button(action: {
                     toolbar.textView.resignFirstResponder()
-                }) { Label("", systemImage: "keyboard.chevron.compact.down")}
+                }) { Image(systemName: "keyboard.chevron.compact.down")}
             }.font(.title2)
             HStack {
                 ColorPicker(selection: $toolbar.color, supportsOpacity: true) { Button(" Foreground") { selectColor() } }
@@ -225,14 +225,12 @@ struct KeyBoardAddition: View {
     }
     
     private func toggleScript(sub: Bool = false) {
-        print("In toggleScript with sub: ", sub)
         let selectedRange = toolbar.textView.selectedRange
         let newOffset = sub ? -0.3 : 0.4
         let attributedString = NSMutableAttributedString(attributedString: attributedText)
         
         if selectedRange.isEmpty { // toggle typingAttributes
             var fontSize = toolbar.fontSize
-            print("Original fontSize =",fontSize)
             let isScript = !(toolbar.textView.typingAttributes[.baselineOffset] as? CGFloat ?? 0.0 == 0.0)
             if toolbar.isSubscript && toolbar.isSuperscript {
                 // Turn one off
@@ -271,7 +269,6 @@ struct KeyBoardAddition: View {
             if let didChangeSelection = toolbar.textView.delegate?.textViewDidChangeSelection { didChangeSelection(toolbar.textView) }
             return
         }
-        
         var isAllScript = true
         attributedString.enumerateAttributes(in: selectedRange,
                                              options: []) { (attributes, range, stopFlag) in
@@ -283,7 +280,6 @@ struct KeyBoardAddition: View {
                 var newFont : UIFont
                 let descriptor: UIFontDescriptor
                 if let font = attributes[.font] as? UIFont {
-                    print("Enlarging font")
                     descriptor = font.fontDescriptor
                     newFont = UIFont(descriptor: descriptor, size: descriptor.pointSize/0.75)
                     attributedString.removeAttribute(.baselineOffset, range: range)
@@ -298,31 +294,24 @@ struct KeyBoardAddition: View {
         // Now attributedString is free of scripts so if isAllScript we are done
         if !isAllScript {
             // set to script
-            print("Setting script")
             attributedString.enumerateAttributes(in: selectedRange,
                                                  options: []) {(attributes, range, stopFlag) in
                 var newFont : UIFont
                 let descriptor: UIFontDescriptor
                 if let font = attributes[.font] as? UIFont {
+                    let isBold = font.contains(trait: .traitBold)
                     descriptor = font.fontDescriptor
                     attributedString.addAttribute(.baselineOffset, value: newOffset*descriptor.pointSize,
                                                   range: range)
                     newFont = UIFont(descriptor: descriptor, size: 0.75*descriptor.pointSize)
                     if descriptor.symbolicTraits.intersection(.traitItalic) == .traitItalic, let font = newFont.italic() {
-                        newFont = font
+                        newFont = isBold ? font.withWeight(.bold) : font
                     }
                 } else { newFont = UIFont.preferredFont(forTextStyle: .body) }
                 attributedString.addAttribute(.font, value: newFont, range: range)
             }
         }
-        //toolbar.textView.attributedText = attributedString
- //       toolbar.justChanged = true
-  //      if let didChangeSelection = toolbar.textView.delegate?.textViewDidChangeSelection { didChangeSelection(toolbar.textView) }
-//        return
-        //toolbar.justChanged = true
-        //toolbar.textView.selectedRange = selectedRange
         updateAttributedText(with: attributedString)
-        
     }
     
     
@@ -334,7 +323,7 @@ struct KeyBoardAddition: View {
         case .right: textAlignment = .left
         case .justified: textAlignment = .justified
         case .natural: textAlignment = .center
-        @unknown default: textAlignment = .left; print("unknown alignment")
+        @unknown default: textAlignment = .left
         }
         toolbar.textAlignment = textAlignment
         toolbar.textView.textAlignment = textAlignment

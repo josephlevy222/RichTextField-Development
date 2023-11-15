@@ -13,7 +13,6 @@ public struct RichTextEditor: View {
     @Binding public var attributedText: AttributedString
     @State var undoManager : UndoManager?
     private let placeholder: String
-    //private let accessorySections: Array<EditorSection>
     private let onCommit: (NSAttributedString) -> Void
     
     public init(
@@ -54,7 +53,6 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
     @Binding private var size: CGSize
     
     internal var controller: UIViewController
-    //internal var textView: MyTextView { toolbar.textView }
     private var accessoryViewController: UIHostingController<KeyBoardAddition>?
     
     private let placeholder: String
@@ -113,7 +111,6 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         let newText = attributedText.convertToUIAttributes()
         context.coordinator.parent.toolbar.textView.attributedText =  newText
         context.coordinator.parent.toolbar.textView.selectedRange = selected
-
         // apparently the context is assigned to the "state" after this,
         // so without changing the context nothing happens
     }
@@ -199,9 +196,6 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
         }
         
         // MARK: - Text Editor Delegate
-//        func textAlign(align: NSTextAlignment) {
-//            parent.textView.textAlignment = align
-//        }
         
         func adjustFontSize(isIncrease: Bool) {
             var font: UIFont
@@ -268,8 +262,6 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
                 let mutableString = NSMutableAttributedString(attributedString: parent.toolbar.textView.attributedText)
                 mutableString.removeAttribute(key, range: range)
                 mutableString.addAttributes([key : value], range: range)
-                // Update parent
-                //parent.attributedText = parent.toolbar.textView.attributedText.attributedString
                 parent.toolbar.textView.updateAttributedText(with: mutableString)
             } else {
                 if let current = parent.toolbar.textView.typingAttributes[key], current as! T == value  {
@@ -290,7 +282,7 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
             let textRange = parent.toolbar.textView.selectedRange
             var textAttributes = parent.toolbar.textView.typingAttributes
             if !textRange.isEmpty {
-                //textAttributes = [:]
+                //textAttributes = [:] // Uncomment to avoid system putting values in typingAttributes
                 parent.toolbar.textView.attributedText.enumerateAttributes(in: textRange) { attributes, range, stop in
                     for item in attributes {
                         textAttributes[item.key] = item.value
@@ -316,7 +308,6 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
             
             let fontTraits: (isBold: Bool,isItalic: Bool,fontSize: CGFloat, offset: CGFloat) = {
                 let offset = attributes[.baselineOffset] as? CGFloat ?? 0.0
-                print ("offset<0 : \(offset<0.0), offset>0 : \(offset>0.0), with offset = \(offset)")
                 let pointSize: CGFloat
                 if parent.toolbar.justChanged {
                     pointSize = parent.toolbar.fontSize
@@ -354,22 +345,11 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
             }
             
             var isScript: (sub: Bool,super: Bool) {
-                let value: (Bool,Bool)
-                if parent.toolbar.justChanged {
-                    value = (parent.toolbar.isSubscript, parent.toolbar.isSuperscript)
-                    print("just changed")
-                } else {
-                    //if !(attributes[.baselineOffset] as? CGFloat ?? 0.0 == 0.0) {
-                        value = (fontTraits.offset < 0.0, fontTraits.offset > 0.0)
-                    //} else {  value = (false, false)}
-                }
-                print(value)
-                return value
+                return parent.toolbar.justChanged
+                    ? (parent.toolbar.isSubscript, parent.toolbar.isSuperscript)
+                    : (fontTraits.offset < 0.0, fontTraits.offset > 0.0)
             }
             
-            
-            
-            // These need to only be used if the entire range is the same colors needs FIXING
             var color: UIColor { selectedAttributes[.foregroundColor] as? UIColor ?? UIColor.label }
             var background: UIColor  { selectedAttributes[.backgroundColor] as? UIColor ?? UIColor.systemBackground }
             
@@ -378,24 +358,19 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
             } else {
                 textView.tintColor = .tintColor
             }
-                DispatchQueue.main.async { [self] in
-                    print("Setting toolbar highlights")
-                    
-                    parent.toolbar.fontSize = fontTraits.fontSize
-                    
-                    parent.toolbar.isBold = fontTraits.isBold
-                    parent.toolbar.isItalic = fontTraits.isItalic
-                    parent.toolbar.isUnderline = isUnderline
-                    parent.toolbar.isStrikethrough = isStrikethrough
-                    let script = isScript
-                    parent.toolbar.isSuperscript = script.1 //isSuperscript
-                    parent.toolbar.isSubscript = script.0 //isSubscript
-                    //parent.toolbar.textAlignment = textView.textAlignment // redundant
-                    parent.toolbar.color = Color(uiColor: color)
-                    parent.toolbar.background = Color(uiColor: background)
-                    parent.toolbar.justChanged = false
-                }
-            
+            DispatchQueue.main.async { [self] in
+                parent.toolbar.fontSize = fontTraits.fontSize
+                parent.toolbar.isBold = fontTraits.isBold
+                parent.toolbar.isItalic = fontTraits.isItalic
+                parent.toolbar.isUnderline = isUnderline
+                parent.toolbar.isStrikethrough = isStrikethrough
+                let script = isScript
+                parent.toolbar.isSuperscript = script.1 //isSuperscript
+                parent.toolbar.isSubscript = script.0 //isSubscript
+                parent.toolbar.color = Color(uiColor: color)
+                parent.toolbar.background = Color(uiColor: background)
+                parent.toolbar.justChanged = false
+            }
         }
         
         
@@ -404,10 +379,8 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
                 textView.attributedText = NSAttributedString(string: "")
                 textView.typingAttributes[.foregroundColor] = UIColor.label
             }
-            print("Did Begin Editing")
             textView.undoManager?.registerUndo(withTarget: self, handler: { targetSelf in
                 print("Doing undo")
-                //targetSelf.attributedText = targetSelf.oldtext
             })
             
             let selectedRange = textView.selectedRange
@@ -428,14 +401,11 @@ struct TextEditorWrapper: UIViewControllerRepresentable {
             
             if textView.attributedText.string != parent.placeholder {
                 self.parent.attributedText = textView.attributedText.uiFontAttributedString
-                print("textViewDidChange")
             }
             let size = CGSize(width: parent.controller.view.frame.width, height: .infinity)
             let estimatedSize = textView.sizeThatFits(size)
             if parent.size != estimatedSize {
-                DispatchQueue.main.async {
-                    self.parent.size = estimatedSize
-                }
+                DispatchQueue.main.async { self.parent.size = estimatedSize }
             }
             textView.scrollRangeToVisible(textView.selectedRange)
         }

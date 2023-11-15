@@ -7,7 +7,7 @@
 import SwiftUI
 
 let bText = "#   Large".markdownToAttributed()
-let aText: AttributedString = AttributedString("Big").setFont(to: .largeTitle).setItalic().setBold() + (AttributedString(" Hello,",attributes: AttributeContainer().kern(3)).setFont(to: .title2).setItalic() + AttributedString(" world!",attributes: AttributeContainer().foregroundColor(.yellow).backgroundColor(.blue).baselineOffset(6)).setFont(to: .title2)).setBold() + AttributedString(" in body ").setFont(to: .body.weight(.ultraLight)) + bText.setBold()
+let aText: AttributedString = AttributedString("Big").setFont(to: .largeTitle).setItalic().setBold() + (AttributedString(" Hello,",attributes: AttributeContainer().kern(3)).setFont(to: .title2).setItalic() + AttributedString(" world",attributes: AttributeContainer().foregroundColor(.yellow).backgroundColor(.blue).baselineOffset(6)).setFont(to: .title2)).setBold() + AttributedString("!",attributes: AttributeContainer().foregroundColor(.yellow).backgroundColor(.blue)).setFont(to: .title2).setBold() + AttributedString(" in body ").setFont(to: .body.weight(.ultraLight))// + bText.setBold()
 let dumpfont = Font.body.weight(.ultraLight).italic().bold()
 
 struct ContentView: View {
@@ -17,23 +17,27 @@ struct ContentView: View {
     @State var state: Int = 0
     var body: some View {
         VStack(alignment: .leading) {
-                
-                RichTextEditor(attributedText: $text, onCommit: {_ in})
-                
-                Text(text)
-                
-                Button("Change Text") {
-                    state = state + 1
-                    if state == 5 { state = 0 }
-                    switch state {
-                    case 0: text = aText
-                    case 1: text = text.setItalic()
-                    case 2: text = text.setBold();
-                    case 3: text = text.setItalic()
-                    case 4: text = text.setBold()
-                    default: break
-                    }
+            Color.clear.frame(height: 100)
+            
+            RichTextEditor(attributedText: $text, onCommit: {_ in})
+            
+            Text(text)
+            
+            Button("Change Text from state: \(state)") {
+                state = state + 1
+                if state == 5 { state = 0 }
+                switch state {
+                case 0: text = aText
+                case 1: text = text.setItalic()
+                case 2: text = text.setBold()
+                case 3: text = text.setUnderline()
+                case 4: text = text.setItalic()
+                default: break
                 }
+            }
+            ScrollView {
+                Text(text.description)
+            }
             Spacer()
         }.padding()
     }
